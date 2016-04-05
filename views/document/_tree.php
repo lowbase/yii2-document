@@ -1,7 +1,7 @@
 <?php
 
-use app\modules\document\components\TreeWidget;
-use app\modules\document\models\Document;
+use lowbase\document\components\TreeWidget;
+use lowbase\document\models\Document;
 use yii\bootstrap\Modal;
 
 /* @var $this yii\web\View */
