@@ -6,7 +6,7 @@
  * @version   1.0.0
  */
 
-use app\modules\document\TreeAsset;
+use lowbase\document\TreeAsset;
 use yii\helpers\Url;
 
 TreeAsset::register($this);
