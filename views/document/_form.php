@@ -1,7 +1,7 @@
 <?php
 
-use app\modules\document\models\Document;
-use app\modules\document\models\Template;
+use lowbase\document\models\Document;
+use lowbase\document\models\Template;
 use yii\helpers\Html;
 use mihaildev\ckeditor\CKEditor;
 use mihaildev\elfinder\ElFinder;
@@ -9,7 +9,7 @@ use mihaildev\elfinder\InputFile;
 use kartik\widgets\Select2;
 use kartik\widgets\ActiveForm;
 use yii\bootstrap\ButtonDropdown;
-use app\modules\document\DocumentAsset;
+use lowbase\document\DocumentAsset;
 
 /* @var $this yii\web\View */
 /* @var $model app\modules\document\models\Document */
