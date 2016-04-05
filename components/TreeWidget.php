@@ -6,7 +6,7 @@
  * @version   1.0.0
  */
 
-namespace app\modules\document\components;
+namespace lowbase\document\components;
 
 use yii\base\Widget;
 use Yii;
