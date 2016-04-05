@@ -1,10 +1,10 @@
 <?php
 
-namespace app\modules\document\controllers;
+namespace lowbase\document\controllers;
 
 use Yii;
-use app\modules\document\models\Document;
-use app\modules\document\models\DocumentSearch;
+use lowbase\document\models\Document;
+use lowbase\document\models\DocumentSearch;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 //use yii\filters\AccessControl;
