@@ -1,0 +1,19 @@
+/**
+ * @package   yii2-document
+ * @author    Yuri Shekhovtsov <shekhovtsovy@yandex.ru>
+ * @copyright Copyright &copy; Yuri Shekhovtsov, lowbase.ru, 2015 - 2016
+ * @version   1.0.0
+ */
+
+.lb-document-module-alert .alert {
+    position: absolute;
+    z-index: 10;
+}
+
+.lb-document-module-tree #jstree_search_input{
+    margin-bottom: 10px;
+}
+
+.hint {
+    color: #ccc;
+}
