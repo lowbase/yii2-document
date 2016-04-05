@@ -6,7 +6,7 @@
  * @version   1.0.0
  */
 
-namespace app\modules\document;
+namespace lowbase\document;
 
 use yii\web\AssetBundle;
 
@@ -15,7 +15,7 @@ use yii\web\AssetBundle;
  */
 class DocumentAsset extends AssetBundle
 {
-    public $sourcePath = '@app/modules/document/assets';
+    public $sourcePath = '@lowbase/document/assets';
 
     public $css = [
         'css/lb-document-module.css'
