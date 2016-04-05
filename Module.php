@@ -6,7 +6,7 @@
  * @version   1.0.0
  */
 
-namespace app\modules\document;
+namespace lowbase\document;
 
 /**
  * document module definition class
@@ -16,7 +16,7 @@ class Module extends \yii\base\Module
     /**
      * @inheritdoc
      */
-    public $controllerNamespace = 'app\modules\document\controllers';
+    public $controllerNamespace = 'lowbase\document\controllers';
 
     public $documentPhotoPath = 'attach/document';
 
@@ -38,10 +38,10 @@ class Module extends \yii\base\Module
         if (!isset(\Yii::$app->i18n->translations['document']) && !isset(\Yii::$app->i18n->translations['document/*'])) {
             \Yii::$app->i18n->translations['document'] = [
                 'class' => 'yii\i18n\PhpMessageSource',
-                'basePath' => '@app/modules/document/messages',
+                'basePath' => '@lowbase/document/messages',
                 'forceTranslation' => true,
                 'fileMap' => [
-                    'users' => 'document.php'
+                    'document' => 'document.php'
                 ]
             ];
         }
