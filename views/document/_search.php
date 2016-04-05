@@ -1,7 +1,7 @@
 <?php
 
-use app\modules\document\models\Document;
-use app\modules\document\models\Template;
+use lowbase\document\models\Document;
+use lowbase\document\models\Template;
 use yii\helpers\Html;
 use yii\widgets\ActiveForm;
 use yii\bootstrap\Modal;
