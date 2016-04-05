@@ -1,7 +1,7 @@
 <?php
 
 use yii\helpers\Html;
-use app\modules\document\DocumentAsset;
+use lowbase\document\DocumentAsset;
 
 /* @var $this yii\web\View */
 /* @var $model app\modules\document\models\Template */
