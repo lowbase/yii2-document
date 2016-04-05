@@ -1,5 +1,5 @@
 <?php
-use app\modules\document\DocumentAsset;
+use lowbase\document\DocumentAsset;
 use yii\helpers\Html;
 
 /* @var $this yii\web\View */
