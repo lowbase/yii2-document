@@ -3,7 +3,7 @@
 use yii\helpers\Html;
 use kartik\grid\GridView;
 use yii\helpers\Url;
-use app\modules\document\DocumentAsset;
+use lowbase\document\DocumentAsset;
 
 /* @var $this yii\web\View */
 /* @var $searchModel app\modules\document\models\TemplateSearch */
