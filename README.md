@@ -75,3 +75,9 @@ php composer.phar require --prefer-dist lowbase/yii2-document "*"
    ],
 ],
 ```
+Создание таблиц БД
+------------------
+Запускаем миграции командой:
+```
+php yii migrate/up --migrationPath=@vendor/lowbase/yii2-document/migrations
+```
