@@ -6,7 +6,7 @@
  * @version   1.0.0
  */
 
-namespace app\modules\document;
+namespace lowbase\document;
 
 use yii\web\AssetBundle;
 
