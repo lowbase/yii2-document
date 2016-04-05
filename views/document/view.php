@@ -1,9 +1,9 @@
 <?php
 
-use app\modules\document\models\Document;
+use lowbase\document\models\Document;
 use yii\helpers\Html;
 use yii\widgets\DetailView;
-use app\modules\document\DocumentAsset;
+use lowbase\document\DocumentAsset;
 
 /* @var $this yii\web\View */
 /* @var $model app\modules\document\models\Document */
