@@ -17,6 +17,8 @@ use yii\web\NotFoundHttpException;
 
 /**
  * TemplateController implements the CRUD actions for Template model.
+ * Абсолютные пути Views использованы, чтобы при наследовании
+ * происходила связь с отображениями модуля родителя.
  */
 class TemplateController extends Controller
 {
