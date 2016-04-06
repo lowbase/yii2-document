@@ -173,15 +173,20 @@ class Document extends \yii\db\ActiveRecord
     {
         return $this->hasMany(Visit::className(), ['document_id' => 'id']);
     }
-
+    
     /**
      * Получить список документов массивом
+     * @param null $parent_id
      * @return array
      */
-    public static function getAll()
+    public static function getAll($parent_id = null)
     {
         $documents = [];
-        $model = Document::find()->all();
+        if ($parent_id) {
+            $model = Document::find()->where(['parent_id' => $parent_id])->all();
+        } else {
+            $model = Document::find()->all();
+        }
         if ($model) {
             foreach ($model as $m) {
                 $documents[$m->id] = $m->name;
@@ -189,7 +194,7 @@ class Document extends \yii\db\ActiveRecord
         }
         return $documents;
     }
-
+    
     /**
      * Пометка или снятие докуента как папки
      * @param $id
