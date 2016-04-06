@@ -77,7 +77,7 @@ class DocumentController extends Controller
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
             Yii::$app->getSession()->setFlash('success', Yii::t('document', 'Новый документ создан.'));
-            return $this->redirect(['@vendor/lowbase/yii2-document/views/document/view', 'id' => $model->id]);
+            return $this->redirect(['view', 'id' => $model->id]);
         }
 
         return $this->render('@vendor/lowbase/yii2-document/views/document/create', [
@@ -96,7 +96,7 @@ class DocumentController extends Controller
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
             Yii::$app->getSession()->setFlash('success', Yii::t('document', 'Документ отредактирован.'));
-            return $this->redirect(['@vendor/lowbase/yii2-document/views/document/view', 'id' => $model->id]);
+            return $this->redirect(['view', 'id' => $model->id]);
         }
 
         return $this->render('@vendor/lowbase/yii2-document/views/document/update', [
@@ -116,7 +116,7 @@ class DocumentController extends Controller
             return true;
         } else {
             Yii::$app->getSession()->setFlash('success', Yii::t('document', 'Документ удален.'));
-            return $this->redirect(['@vendor/lowbase/yii2-document/views/document/index']);
+            return $this->redirect(['index']);
         }
     }
 
