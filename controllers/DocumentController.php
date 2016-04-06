@@ -184,7 +184,7 @@ class DocumentController extends Controller
      * @return bool
      * @throws NotFoundHttpException
      */
-    public function actionMove()
+     public function actionMove()
     {
         $data = Yii::$app->request->post();
         $model = $this->findModel($data['id']);
@@ -193,10 +193,19 @@ class DocumentController extends Controller
 
         if ($data['new_prev_id'] && $data['new_prev_id'] !== 'false') {
             $prev_model = $this->findModel($data['new_prev_id']);
-        } elseif ($data['new_next_id'] && $data['new_prev_id'] !== 'false') {
-            $next_model = $this->findModel($data['new_next_id']);
+            $model->position = $prev_model->position+1;
         } else {
-            $parent_model = $this->findModel($data['new_parent_id']);
+            $model->position = 0;
+        }
+        $db = $model->getDb();
+        $transaction = $db->beginTransaction();
+        try {
+            $db->createCommand("set @i:=". $model->position)->execute();
+            $db->createCommand('UPDATE lb_document SET position=(@i:=@i+1) WHERE (parent_id='.$model->parent_id.' && `position`>='.$model->position.') ORDER BY position')->execute();
+            $transaction->commit();
+        } catch (\Exception $e) {
+            $transaction->rollBack();
+            throw $e;
         }
         $model->save();
 
@@ -208,11 +217,9 @@ class DocumentController extends Controller
                 Document::folder($model->parent_id);
             }
         }
-
         return true;
     }
-
-    /**
+     /**
      * @param integer $id
      * @return Document the loaded model
      * @throws NotFoundHttpException if the model cannot be found
