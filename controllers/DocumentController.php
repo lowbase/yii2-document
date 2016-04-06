@@ -46,7 +46,7 @@ class DocumentController extends Controller
         $searchModel = new DocumentSearch();
         $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
 
-        return $this->render('index', [
+        return $this->render('@vendor/lowbase/yii2-document/views/document/index', [
             'searchModel' => $searchModel,
             'dataProvider' => $dataProvider,
         ]);
@@ -59,7 +59,7 @@ class DocumentController extends Controller
      */
     public function actionView($id)
     {
-        return $this->render('view', [
+        return $this->render('@vendor/lowbase/yii2-document/views/document/view', [
             'model' => $this->findModel($id),
         ]);
     }
@@ -75,10 +75,10 @@ class DocumentController extends Controller
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
             Yii::$app->getSession()->setFlash('success', Yii::t('document', 'Новый документ создан.'));
-            return $this->redirect(['view', 'id' => $model->id]);
+            return $this->redirect(['@vendor/lowbase/yii2-document/views/document/view', 'id' => $model->id]);
         }
 
-        return $this->render('create', [
+        return $this->render('@vendor/lowbase/yii2-document/views/document/create', [
             'model' => $model,
         ]);
     }
@@ -94,10 +94,10 @@ class DocumentController extends Controller
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
             Yii::$app->getSession()->setFlash('success', Yii::t('document', 'Документ отредактирован.'));
-            return $this->redirect(['view', 'id' => $model->id]);
+            return $this->redirect(['@vendor/lowbase/yii2-document/views/document/view', 'id' => $model->id]);
         }
 
-        return $this->render('update', [
+        return $this->render('@vendor/lowbase/yii2-document/views/document/update', [
             'model' => $model,
         ]);
     }
@@ -114,7 +114,7 @@ class DocumentController extends Controller
             return true;
         } else {
             Yii::$app->getSession()->setFlash('success', Yii::t('document', 'Документ удален.'));
-            return $this->redirect(['index']);
+            return $this->redirect(['@vendor/lowbase/yii2-document/views/document/index']);
         }
     }
 
