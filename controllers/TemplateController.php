@@ -72,7 +72,7 @@ class TemplateController extends Controller
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
             Yii::$app->getSession()->setFlash('success', Yii::t('document', 'Новый шаблон создан.'));
-            return $this->redirect(['@vendor/lowbase/yii2-document/views/template/view', 'id' => $model->id]);
+            return $this->redirect(['view', 'id' => $model->id]);
         } else {
             return $this->render('@vendor/lowbase/yii2-document/views/template/create', [
                 'model' => $model,
@@ -91,7 +91,7 @@ class TemplateController extends Controller
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
             Yii::$app->getSession()->setFlash('success', Yii::t('document', 'Шаблон отредактирован.'));
-            return $this->redirect(['@vendor/lowbase/yii2-document/views/template/view', 'id' => $model->id]);
+            return $this->redirect(['view', 'id' => $model->id]);
         } else {
             return $this->render('@vendor/lowbase/yii2-document/views/template/update', [
                 'model' => $model,
@@ -109,7 +109,7 @@ class TemplateController extends Controller
         $this->findModel($id)->delete();
         Yii::$app->getSession()->setFlash('success', Yii::t('document', 'Шаблон удален.'));
 
-        return $this->redirect(['@vendor/lowbase/yii2-document/views/template/index']);
+        return $this->redirect(['index']);
     }
 
     /**
