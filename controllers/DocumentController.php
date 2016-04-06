@@ -18,6 +18,8 @@ use yii\web\NotFoundHttpException;
 
 /**
  * DocumentController implements the CRUD actions for Document model.
+ * Абсолютные пути Views использованы, чтобы при наследовании
+ * происходила связь с отображениями модуля родителя.
  */
 class DocumentController extends Controller
 {
