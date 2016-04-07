@@ -232,4 +232,20 @@ class DocumentController extends Controller
             throw new NotFoundHttpException(Yii::t('document', 'Запрашиваемая страница не найдена.'));
         }
     }
+    
+        /**
+     * Отображение документа
+     * @param $alias
+     * @return string
+     * @throws NotFoundHttpException
+     */
+    public function actionShow($alias)
+    {
+        $model = Document::find()->where(['alias' => $alias, 'status' => Document::STATUS_ACTIVE])->one();
+        if ($model == null) {
+            throw new NotFoundHttpException(Yii::t('document', 'Запрашиваемая страница не найдена.'));
+        }
+        $template = (isset($model->template) && $model->template->path) ? $model->template->path : 'template/default';
+        return $this->render($template, ['model' => $model]);
+    }
 }
