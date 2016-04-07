@@ -153,9 +153,9 @@ class Document extends \yii\db\ActiveRecord
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getDocuments()
+    public function getChildren()
     {
-        return $this->hasMany(Document::className(), ['parent_id' => 'id']);
+        return $this->hasMany(Document::className(), ['parent_id' => 'id'])->orderBy(['position' => SORT_ASC]);
     }
 
     /**
