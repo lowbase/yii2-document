@@ -245,7 +245,7 @@ class DocumentController extends Controller
         if ($model == null) {
             throw new NotFoundHttpException(Yii::t('document', 'Запрашиваемая страница не найдена.'));
         }
-        $template = (isset($model->template) && $model->template->path) ? $model->template->path : 'template/default';
+        $template = (isset($model->template) && $model->template->path) ? $model->template->path : '@vendor/lowbase/yii2-document/views/document/template/default';
         return $this->render($template, ['model' => $model]);
     }
 }
