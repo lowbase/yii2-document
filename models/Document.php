@@ -240,5 +240,17 @@ class Document extends \yii\db\ActiveRecord
         self::folder($this->parent_id, true);
         return true;
     }
+    
+        public function beforeSave($insert)
+    {
+        if (parent::beforeSave($insert)) {
+            if ($this->isNewRecord && !$this->position) {
+                $position = self::find()->select('position')->where(['parent_id' => $this->parent_id])->orderBy(['position' => SORT_DESC])->one();
+                $this->position = ($position) ? $position : 0;
+            }
+            return true;
+        }
+        return false;
+    }
 
 }
