@@ -245,8 +245,8 @@ class Document extends \yii\db\ActiveRecord
     {
         if (parent::beforeSave($insert)) {
             if ($this->isNewRecord && !$this->position) {
-                $position = self::find()->select('position')->where(['parent_id' => $this->parent_id])->orderBy(['position' => SORT_DESC])->one();
-                $this->position = ($position) ? $position : 0;
+                $model = self::find()->select('position')->where(['parent_id' => $this->parent_id])->orderBy(['position' => SORT_DESC])->one();
+                $this->position = ($model) ? $model->position : 0;
             }
             return true;
         }
