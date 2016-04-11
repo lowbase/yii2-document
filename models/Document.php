@@ -55,6 +55,10 @@ class Document extends \yii\db\ActiveRecord
     const STATUS_ACTIVE = 1;
     const STATUS_WAIT = 2;
 
+    const FILES_PATH = 'attach/document/autoload/';
+
+    public $file;
+
     /**
      * @inheritdoc
      */
@@ -109,6 +113,7 @@ class Document extends \yii\db\ActiveRecord
             [['template_id'], 'exist', 'skipOnError' => true, 'targetClass' => Template::className(), 'targetAttribute' => ['template_id' => 'id']],
             [['parent_id'], 'exist', 'skipOnError' => true, 'targetClass' => Document::className(), 'targetAttribute' => ['parent_id' => 'id']],
             ['status', 'in', 'range' => array_keys(self::getStatusArray())],
+            ['file','file', 'extensions' => ['png', 'jpg', 'gif', 'jpeg']],
             [['name', 'title', 'meta_keywords', 'meta_description', 'annotation', 'alias'], 'filter', 'filter' => 'trim'],
             [['title', 'meta_keywords', 'meta_description', 'annotation', 'content', 'image', 'parent_id', 'template_id', 'position'], 'default', 'value' => null],
             [['is_folder'], 'default', 'value' => 0],
@@ -149,6 +154,8 @@ class Document extends \yii\db\ActiveRecord
             'created_by' => Yii::t('document', 'Создал'),
             'updated_by' => Yii::t('document', 'Редактировал'),
             'position' => Yii::t('document', 'Позиция'),
+            'file' => Yii::t('document', 'Изображения'),
+
         ];
 
         if ($this->template_id) {
@@ -190,17 +197,17 @@ class Document extends \yii\db\ActiveRecord
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getLbFieldValues()
+    public function getVisits()
     {
-        return $this->hasMany(FieldValue::className(), ['document_id' => 'id']);
+        return $this->hasMany(Visit::className(), ['document_id' => 'id']);
     }
 
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getLbVisits()
+    public function getImages()
     {
-        return $this->hasMany(Visit::className(), ['document_id' => 'id']);
+        return $this->hasMany(Image::className(), ['parent_id' => 'id']);
     }
     
     /**
@@ -256,6 +263,21 @@ class Document extends \yii\db\ActiveRecord
         self::folder($this->parent_id);
         if (isset($changedAttributes['parent_id'])) {
             self::folder($changedAttributes['parent_id']);
+        }
+        //Сохранение файла
+        if ($this->file) {
+            $dir = 'attach/images/'.$this->id.'/';
+            if (!file_exists($dir)) {
+                mkdir($dir, 0777, true);
+            }
+            $ext = "." . end(explode(".", $this->file));
+            $url = $dir . time() . $ext;
+            $this->file->saveAs($url);
+            $model = new Image();
+            $model->name  = $this->file->name;
+            $model->path = $url;
+            $model->parent_id = $this->id;
+            $model->save();
         }
         return true;
     }
