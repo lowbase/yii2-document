@@ -234,11 +234,11 @@ class Document extends \yii\db\ActiveRecord
     {
         $node = Document::findOne($id);
         $db = self::getDb();
-        if ($node && $node->documents && !$node->is_folder) {
+        if ($node && $node->children && !$node->is_folder) {
             $db->createCommand()->update('lb_document', ['is_folder' => 1], ['id' => $node->id])->execute();
         }
-        if (($node && !$node->documents && $node->is_folder) ||
-            ($node && count($node->documents) === 1 && $node->is_folder && $child_delete)) {
+        if (($node && !$node->children && $node->is_folder) ||
+            ($node && count($node->children) === 1 && $node->is_folder && $child_delete)) {
             $db->createCommand()->update('lb_document', ['is_folder' => 0], ['id' => $node->id])->execute();
         }
 
