@@ -17,3 +17,11 @@
 .hint {
     color: #ccc;
 }
+
+.pointer {
+    cursor: pointer;
+}
+
+.hidden-block {
+    display: none;
+}
