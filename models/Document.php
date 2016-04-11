@@ -318,7 +318,9 @@ class Document extends \yii\db\ActiveRecord
      */
     public function beforeValidate()
     {
-        $this->optionValidate();
+        if ($this->scenario != 'search') {
+            $this->optionValidate();
+        }
         return true;
     }
 
