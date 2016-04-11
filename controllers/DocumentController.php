@@ -8,12 +8,15 @@
  
 namespace lowbase\document\controllers;
 
+use lowbase\document\models\Image;
 use lowbase\document\models\Template;
 use Yii;
 use lowbase\document\models\Document;
 use lowbase\document\models\DocumentSearch;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
+use yii\web\UploadedFile;
+
 //use yii\filters\AccessControl;
 
 
@@ -33,7 +36,7 @@ class DocumentController extends Controller
 // Ограничение доступа к операциям, связанным с документами
 //            'access' => [
 //                'class' => AccessControl::className(),
-//                'only' => ['index', 'view', 'create', 'update', 'delete', 'multidelete', 'multiactive', 'multiblock', 'move'],
+//                'only' => ['index', 'view', 'create', 'update', 'delete', 'multidelete', 'multiactive', 'multiblock', 'move', 'rmv'],
 //                'rules' => [
 //                ],
 //            ],
@@ -76,9 +79,12 @@ class DocumentController extends Controller
         $model = new Document();
         $model->parent_id = Yii::$app->request->get('parent_id');
 
-        if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            Yii::$app->getSession()->setFlash('success', Yii::t('document', 'Новый документ создан.'));
-            return $this->redirect(['view', 'id' => $model->id]);
+        if ($model->load(Yii::$app->request->post())) {
+            $model->file = UploadedFile::getInstance($model, 'file');
+            if ($model->save()) {
+                Yii::$app->getSession()->setFlash('success', Yii::t('document', 'Новый документ создан.'));
+                return $this->redirect(['view', 'id' => $model->id]);
+            }
         }
 
         return $this->render('@vendor/lowbase/yii2-document/views/document/create', [
@@ -94,10 +100,12 @@ class DocumentController extends Controller
     public function actionUpdate($id)
     {
         $model = $this->findModel($id);
-
-        if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            Yii::$app->getSession()->setFlash('success', Yii::t('document', 'Документ отредактирован.'));
-            return $this->redirect(['view', 'id' => $model->id]);
+        if ($model->load(Yii::$app->request->post())) {
+            $model->file = UploadedFile::getInstance($model, 'file');
+            if ($model->save()) {
+                Yii::$app->getSession()->setFlash('success', Yii::t('document', 'Документ отредактирован.'));
+                return $this->redirect(['view', 'id' => $model->id]);
+            }
         }
 
         return $this->render('@vendor/lowbase/yii2-document/views/document/update', [
@@ -273,5 +281,24 @@ class DocumentController extends Controller
             'template' => $template,
             'empty_value' => $empty_value
         ]);
+    }
+
+    /**
+     * Удаление изображений документа
+     * @param $id
+     * @return \yii\web\Response
+     */
+    public function actionRmv($id)
+    {
+        $model = Image::find()->where(['parent_id' => $id])->all();
+        if ($model) {
+            foreach ($model as $m) {
+                if (file_exists('/'.$m->path)) {
+                    unlink('/'.$m->path);
+                }
+                $m->delete();
+            }
+        }
+        return $this->redirect(['update', 'id' => $id]);
     }
 }
