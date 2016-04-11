@@ -178,6 +178,21 @@ DocumentAsset::register($this);
         </div>
     </div>
 
+    <div class="row">
+        <div class="col-lg-12">
+            <?= $form->field($model, 'file')->fileInput(['maxlength' => true]); ?>
+            <?php
+            if ($model->images) {
+                foreach ($model->images as $f) {
+                    echo Html::img('/'.$f->path, ['class' => 'thumb thumbnail']);
+                }
+                echo Html::a(Yii::t('document', '<i class="glyphicon glyphicon-trash"></i> Удалить'),['rmv','id' => $model->id], ['class' => 'btn btn-danger']);
+            }
+
+            ?>
+        </div>
+    </div>
+
     <div id="options">
         <?php
         //Опции документа
