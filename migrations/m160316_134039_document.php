@@ -15,6 +15,8 @@ class m160316_134039_document extends Migration
             $tableOptions = 'CHARACTER SET utf8 COLLATE utf8_unicode_ci ENGINE=InnoDB';
         }
 
+        //Таблица шаблонов template
+        
         $fileds = [
             'id' => Schema::TYPE_PK,
             'name' => Schema::TYPE_STRING . ' NOT NULL',
@@ -28,27 +30,14 @@ class m160316_134039_document extends Migration
             $fields['option_' . $i . '_require'] = Schema::TYPE_SMALLINT .' NOT NULL DEFAULT 0';
             $fields['option_' . $i . '_param'] = Schema::TYPE_STRING . ' NULL DEFAULT NULL';
         }
-
-        //Таблица шаблонов template
+        
         $this->createTable('{{%lb_template}}', $fileds , $tableOptions);
 
         //Индексы и ключи таблицы шаблонов template
         $this->createIndex('template_name_index', '{{%lb_template}}', 'name');
 
-        //Таблица дополнительных полей документов field
-        $this->createTable('{{%lb_field}}', [
-            'id' => Schema::TYPE_PK,
-            'name' => Schema::TYPE_STRING . ' NOT NULL',
-            'type' => Schema::TYPE_SMALLINT . ' NOT NULL',
-            'param' => Schema::TYPE_STRING . ' NULL DEFAULT NULL',
-            'require' => Schema::TYPE_INTEGER . ' NOT NULL DEFAULT 0',
-            'multiple' => Schema::TYPE_INTEGER . ' NOT NULL DEFAULT 0',
-            'template_id' => Schema::TYPE_INTEGER . ' NOT NULL',
-        ], $tableOptions);
-
-        //Индексы и ключи таблицы дополнительных полей документов field_value
-        $this->addForeignKey('field_template_id_fk', '{{%lb_field}}', 'template_id', '{{%lb_template}}', 'id', 'CASCADE', 'CASCADE');
-        $this->createIndex('field_name_index', '{{%lb_field}}', 'name');
+        //Таблица документов document
+        $this->createTable('{{%lb_document}}', $fields , $tableOptions);
 
         $fields = [
             'id' => Schema::TYPE_PK,
@@ -75,9 +64,6 @@ class m160316_134039_document extends Migration
             $fields['option_' . $i] = Schema::TYPE_TEXT . ' NULL DEFAULT NULL';
         }
 
-        //Таблица документов document
-        $this->createTable('{{%lb_document}}', $fields , $tableOptions);
-
         //Индексы и ключи таблицы документов document
         $this->addForeignKey('document_parent_id_fk', '{{%lb_document}}', 'parent_id', '{{%lb_document}}', 'id', 'SET NULL', 'CASCADE');
         $this->addForeignKey('document_template_id_fk', '{{%lb_document}}', 'template_id', '{{%lb_template}}', 'id', 'SET NULL', 'CASCADE');
@@ -85,20 +71,7 @@ class m160316_134039_document extends Migration
         $this->createIndex('document_alias_index', '{{%lb_document}}', 'alias');
         $this->createIndex('document_status_index', '{{%lb_document}}', 'status');
         $this->createIndex('document_position_index', '{{%lb_document}}', 'position');
-
-        //Таблица значений дополнительных полей документов field_value
-        $this->createTable('{{%lb_field_value}}', [
-            'id' => Schema::TYPE_PK,
-            'field_id' => Schema::TYPE_INTEGER . ' NOT NULL',
-            'document_id' => Schema::TYPE_INTEGER . ' NOT NULL',
-            'position' => Schema::TYPE_INTEGER . ' NULL DEFAULT NULL',
-            'value' => Schema::TYPE_TEXT . ' NULL DEFAULT NULL',
-        ], $tableOptions);
-
-        //Индексы и ключи таблицы значений дополнительных полей документов field_value
-        $this->addForeignKey('field_value_field_id_fk', '{{%lb_field_value}}', 'field_id', '{{%lb_field}}', 'id', 'CASCADE', 'CASCADE');
-        $this->addForeignKey('field_value_document_id_fk', '{{%lb_field_value}}', 'document_id', '{{%lb_document}}', 'id', 'CASCADE', 'CASCADE');
-
+        
         //Таблица просмотров документов visit
         $this->createTable('{{%lb_visit}}', [
             'id' => Schema::TYPE_PK,
