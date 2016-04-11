@@ -1,10 +1,13 @@
 <?php
 
+use lowbase\document\models\Template;
 use yii\db\Migration;
 use yii\db\Schema;
 
 class m160316_134039_document extends Migration
 {
+    const OPTIONS_FIELD = Template::OPTIONS_COUNT;
+
     public function up()
     {
         $tableOptions = null;
@@ -12,13 +15,22 @@ class m160316_134039_document extends Migration
             $tableOptions = 'CHARACTER SET utf8 COLLATE utf8_unicode_ci ENGINE=InnoDB';
         }
 
-        //Таблица шаблонов template
-        $this->createTable('{{%lb_template}}', [
+        $fileds = [
             'id' => Schema::TYPE_PK,
             'name' => Schema::TYPE_STRING . ' NOT NULL',
             'description' => Schema::TYPE_TEXT . ' NULL DEFAULT NULL',
             'path' => Schema::TYPE_STRING . ' NULL DEFAULT NULL',
-        ], $tableOptions);
+        ];
+
+        for ($i = 1; $i <= self::OPTIONS_FIELD; $i++) {
+            $fields['option_' . $i . '_name'] =  Schema::TYPE_STRING . ' NULL DEFAULT NULL';
+            $fields['option_' . $i . '_type'] = Schema::TYPE_SMALLINT .' NULL DEFAULT NULL';
+            $fields['option_' . $i . '_require'] = Schema::TYPE_SMALLINT .' NOT NULL DEFAULT 0';
+            $fields['option_' . $i . '_param'] = Schema::TYPE_STRING . ' NULL DEFAULT NULL';
+        }
+
+        //Таблица шаблонов template
+        $this->createTable('{{%lb_template}}', $fileds , $tableOptions);
 
         //Индексы и ключи таблицы шаблонов template
         $this->createIndex('template_name_index', '{{%lb_template}}', 'name');
@@ -38,8 +50,7 @@ class m160316_134039_document extends Migration
         $this->addForeignKey('field_template_id_fk', '{{%lb_field}}', 'template_id', '{{%lb_template}}', 'id', 'CASCADE', 'CASCADE');
         $this->createIndex('field_name_index', '{{%lb_field}}', 'name');
 
-        //Таблица документов document
-        $this->createTable('{{%lb_document}}', [
+        $fields = [
             'id' => Schema::TYPE_PK,
             'name' => Schema::TYPE_STRING . ' NOT NULL',
             'alias' => Schema::TYPE_STRING . ' NOT NULL',
@@ -58,7 +69,14 @@ class m160316_134039_document extends Migration
             'created_by' =>Schema::TYPE_INTEGER. ' NOT NULL',
             'updated_by' =>Schema::TYPE_INTEGER. ' NULL DEFAULT NULL',
             'position' => Schema::TYPE_INTEGER. ' NULL DEFAULT NULL',
-        ], $tableOptions);
+        ];
+
+        for ($i = 1; $i <= self::OPTIONS_FIELD; $i++) {
+            $fields['option_' . $i] = Schema::TYPE_TEXT . ' NULL DEFAULT NULL';
+        }
+
+        //Таблица документов document
+        $this->createTable('{{%lb_document}}', $fields , $tableOptions);
 
         //Индексы и ключи таблицы документов document
         $this->addForeignKey('document_parent_id_fk', '{{%lb_document}}', 'parent_id', '{{%lb_document}}', 'id', 'SET NULL', 'CASCADE');
