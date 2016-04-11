@@ -16,6 +16,7 @@ use kartik\widgets\Select2;
 use kartik\widgets\ActiveForm;
 use yii\bootstrap\ButtonDropdown;
 use lowbase\document\DocumentAsset;
+use yii\helpers\Url;
 
 /* @var $this yii\web\View */
 /* @var $model app\modules\document\models\Document */
@@ -177,26 +178,63 @@ DocumentAsset::register($this);
         </div>
     </div>
 
+    <div id="options">
+        <?php
+        //Опции документа
+        if ($model->template_id) {
+            for ($i = 1; $i <= Template::OPTIONS_COUNT; $i++) {
+                ?>
+                <div class="row option">
+                    <div class="col-sm-12">
+                        <?= $this->render('_option', [
+                            'model' => $model,
+                            'i' => $i,
+                            'template' => ($model->template_id && isset($model->template)) ? $model->template : null,
+                        ]);?>
+                    </div>
+                </div>
+            <?php
+            }
+        }
+        ?>
+    </div>
+
     <?php ActiveForm::end(); ?>
 
 </div>
 
 
 <?php
+$document_id = ($model->isNewRecord) ? 0 : $model->id;
 $this->registerJs("
     $('.repeat-name').click(function(){
-    var text = $('#document-name').val();
-    $('#document-title').val(text);
+        var text = $('#document-name').val();
+        $('#document-title').val(text);
     });
     $('.translate-name').click(function(){
-    var text = $('#document-name').val().toLowerCase();
-    result = translit(text);
+        var text = $('#document-name').val().toLowerCase();
+        result = translit(text);
     $('#document-alias').val(result);
     });
     $('.translate-title').click(function(){
-    var text = $('#document-title').val().toLowerCase();
-    result = translit(text);
+        var text = $('#document-title').val().toLowerCase();
+        result = translit(text);
     $('#document-alias').val(result);
+    });
+
+    $('.template_id').change(function(){
+        var template_id = $(this).val();
+        $.ajax({
+            url: '".Url::to('/admin/document/options')."',
+            type: 'POST',
+            data: {
+                'id' : " . $document_id . ",
+                'template_id' : template_id
+            },
+            success: function(data){
+                $('#options').html(data);
+            }
+        });
     });
 ");
 ?>
