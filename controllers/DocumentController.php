@@ -298,6 +298,7 @@ class DocumentController extends Controller
                 }
                 $m->delete();
             }
+            Yii::$app->getSession()->setFlash('success', Yii::t('document', 'Изображения удалены.'));
         }
         return $this->redirect(['update', 'id' => $id]);
     }
