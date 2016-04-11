@@ -266,7 +266,7 @@ class Document extends \yii\db\ActiveRecord
         }
         //Сохранение файла
         if ($this->file) {
-            $dir = 'attach/images/'.$this->id.'/';
+            $dir = self::FILES_PATH . $this->id . '/';
             if (!file_exists($dir)) {
                 mkdir($dir, 0777, true);
             }
