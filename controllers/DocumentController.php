@@ -8,6 +8,7 @@
  
 namespace lowbase\document\controllers;
 
+use lowbase\document\models\Template;
 use Yii;
 use lowbase\document\models\Document;
 use lowbase\document\models\DocumentSearch;
@@ -247,5 +248,30 @@ class DocumentController extends Controller
         }
         $template = (isset($model->template) && $model->template->path) ? $model->template->path : '@vendor/lowbase/yii2-document/views/document/template/default';
         return $this->render($template, ['model' => $model]);
+    }
+
+    /**
+     * Отображение дополнительных полей
+     * Используется при имземении шаблона
+     * @return mixed
+     */
+    public function actionOptions()
+    {
+        $id = Yii::$app->request->post('id');
+        if ($id) {
+            $model = Document::findOne($id);
+        } else {
+            $model = new Document();
+        }
+
+        $model->template_id = Yii::$app->request->post('template_id');
+        $template = Template::findOne($model->template_id);
+        $empty_value = ($model->getOldAttribute('template_id') != $model->template_id) ? true : false;
+
+        return $this->renderAjax('_options', [
+            'model' => $model,
+            'template' => $template,
+            'empty_value' => $empty_value
+        ]);
     }
 }
