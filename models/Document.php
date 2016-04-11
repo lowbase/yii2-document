@@ -11,6 +11,7 @@ namespace lowbase\document\models;
 use Yii;
 use yii\behaviors\TimestampBehavior;
 use yii\behaviors\BlameableBehavior;
+use yii\validators\Validator;
 
 /**
  * This is the model class for table "lb_document".
@@ -34,6 +35,12 @@ use yii\behaviors\BlameableBehavior;
  * @property integer $updated_by
  * @property integer $position
  *
+ * @property string $option_1
+ * @property string $option_2
+ * @property string $option_3
+ * @property string $option_4
+ * @property string $option_5
+ *
  * @property Template $template
  * @property Document $parent
  * @property Document[] $documents
@@ -42,6 +49,8 @@ use yii\behaviors\BlameableBehavior;
  */
 class Document extends \yii\db\ActiveRecord
 {
+    const OPTIONS_COUNT = Template::OPTIONS_COUNT;
+
     const STATUS_BLOCKED = 0;
     const STATUS_ACTIVE = 1;
     const STATUS_WAIT = 2;
@@ -90,7 +99,7 @@ class Document extends \yii\db\ActiveRecord
      */
     public function rules()
     {
-        return [
+        $rules = [
             [['alias'], 'unique'],
             [['name', 'alias'], 'required'],
             [['meta_keywords', 'meta_description', 'annotation', 'content'], 'string'],
@@ -105,6 +114,15 @@ class Document extends \yii\db\ActiveRecord
             [['is_folder'], 'default', 'value' => 0],
             [['status'], 'default', 'value' => self::STATUS_ACTIVE],
         ];
+
+        $options = [];
+        for ($i = 1; $i <= self::OPTIONS_COUNT; $i++) {
+            $options[] = 'option_' . $i;
+        }
+        $rules[] = [$options, 'string'];
+        $rules[] = [$options, 'default', 'value' => null];
+
+        return $rules;
     }
 
     /**
@@ -112,7 +130,7 @@ class Document extends \yii\db\ActiveRecord
      */
     public function attributeLabels()
     {
-        return [
+        $labels = [
             'id' => Yii::t('document', 'ID'),
             'name' => Yii::t('document', 'Наименование'),
             'alias' => Yii::t('document', 'Алиас'),
@@ -132,6 +150,17 @@ class Document extends \yii\db\ActiveRecord
             'updated_by' => Yii::t('document', 'Редактировал'),
             'position' => Yii::t('document', 'Позиция'),
         ];
+
+        if ($this->template_id) {
+            $template = Template::findOne($this->template_id);
+        }
+
+        for ($i = 1; $i <= self::OPTIONS_COUNT; $i++) {
+            $option_name = 'option_' . $i . '_name';
+            $labels['option_' . $i] = (isset($template->$option_name) && $template->$option_name) ? $template->$option_name : Yii::t('document', 'Опция') . ' ' . $i;
+        }
+
+        return $labels;
     }
 
     /**
@@ -205,11 +234,11 @@ class Document extends \yii\db\ActiveRecord
     {
         $node = Document::findOne($id);
         $db = self::getDb();
-        if ($node && $node->children && !$node->is_folder) {
+        if ($node && $node->documents && !$node->is_folder) {
             $db->createCommand()->update('lb_document', ['is_folder' => 1], ['id' => $node->id])->execute();
         }
-        if (($node && !$node->children && $node->is_folder) ||
-            ($node && count($node->children) === 1 && $node->is_folder && $child_delete)) {
+        if (($node && !$node->documents && $node->is_folder) ||
+            ($node && count($node->documents) === 1 && $node->is_folder && $child_delete)) {
             $db->createCommand()->update('lb_document', ['is_folder' => 0], ['id' => $node->id])->execute();
         }
 
@@ -240,17 +269,57 @@ class Document extends \yii\db\ActiveRecord
         self::folder($this->parent_id, true);
         return true;
     }
-    
-        public function beforeSave($insert)
+
+    /**
+     * Валидация опций в зависимости от шаблона
+     * @return bool
+     */
+    public function optionValidate()
     {
-        if (parent::beforeSave($insert)) {
-            if ($this->isNewRecord && !$this->position) {
-                $model = self::find()->select('position')->where(['parent_id' => $this->parent_id])->orderBy(['position' => SORT_DESC])->one();
-                $this->position = ($model) ? $model->position+1 : 0;
+        $template = Template::findOne($this->template_id);
+        if ($template) {
+            for ($i = 1; $i <= Template::OPTIONS_COUNT; $i++) {
+                $option_type = 'option_' . $i . '_type';
+                $option_require = 'option_' . $i . '_require';
+                $option_param = 'option_' . $i . '_param';
+                if ($template->$option_type) {
+                    switch ($template->$option_type) {
+                        case 1:   //число целое
+                        case 4:   //выключатель
+                        case 7:   //список дочерних документов
+                            $this->validators[] = Validator::createValidator('integer', $this, 'option_'.$i);
+                            break;
+                        case 2:   //число
+                            $this->validators[] = Validator::createValidator('double', $this, 'option_'.$i);
+                            break;
+                        case 3:   //строка
+                        case 5:   //текст
+                        case 6:   //файл (выбор)
+                            $this->validators[] = Validator::createValidator('string', $this, 'option_'.$i);
+                            break;
+                        case 8:    //регулярное выражение
+                            $pattern = ($template->$option_param) ? $template->$option_param : '/\w/';
+                            $this->validators[] = Validator::createValidator('match', $this, 'option_'.$i, [
+                                'pattern' => $pattern
+                            ]);
+                            break;
+                    }
+                    if ($template->$option_require) {
+                            $this->validators[] = Validator::createValidator('required', $this, 'option_'.$i);
+                    }
+                }
             }
-            return true;
         }
-        return false;
+        return true;
+    }
+
+    /**
+     * @return bool
+     */
+    public function beforeValidate()
+    {
+        $this->optionValidate();
+        return true;
     }
 
 }
