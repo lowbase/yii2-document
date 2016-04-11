@@ -25,3 +25,10 @@
 .hidden-block {
     display: none;
 }
+
+.thumb {
+    height: 100px;
+    margin: 0px;
+    float: left;
+    margin-right: 10px;
+}
