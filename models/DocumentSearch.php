@@ -28,13 +28,22 @@ class DocumentSearch extends Document
     /**
      * @inheritdoc
      */
-    public function rules()
+   public function rules()
     {
-        return [
-            [['id', 'position', 'id_from', 'id_till', 'position_from', 'position_till', 'status', 'is_folder', 'parent_id', 'template_id', 'created_by', 'updated_by'], 'integer'],
-            [['name', 'alias', 'title', 'meta_keywords', 'meta_description', 'annotation', 'content', 'image', 'created_at', 'created_at_from', 'created_at_till',  'updated_at_from', 'updated_at_till', 'updated_at'], 'safe'],
+        $rules = [
+            [['id', 'position', 'id_from', 'id_till', 'position_from', 'position_till', 'status', 'is_folder', 'parent_id', 'template_id', 'created_by', 'updated_by'], 'integer', 'on' => 'search'],
+            [['name', 'alias', 'title', 'meta_keywords', 'meta_description', 'annotation', 'content', 'image', 'created_at', 'created_at_from', 'created_at_till',  'updated_at_from', 'updated_at_till', 'updated_at'], 'safe', 'on' => 'search'],
         ];
+
+        $options = [];
+        for ($i = 1; $i <= self::OPTIONS_COUNT; $i++) {
+            $options[] = 'option_' . $i;
+        }
+        $rules[] = [$options, 'safe', 'on' => 'search'];
+
+        return $rules;
     }
+
 
     /**
      * @inheritdoc
@@ -71,6 +80,7 @@ class DocumentSearch extends Document
      */
     public function search($params)
     {
+        $this->scenario = 'search';
         $query = Document::find();
 
         // add conditions that should always apply here
