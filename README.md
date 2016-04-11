@@ -42,6 +42,8 @@ php composer.phar require --prefer-dist lowbase/yii2-document "*"
        'admin/document/<action:(index|create|update|delete|view|multidelete|multiactive|multiblock|move|options)>' => 'document/document/<action>',
         //Отображение документов
        '<alias>' => 'document/document/show'
+       //Файловый менеджер
+        'elfinder/<action(connect|manager)>' => 'elfinder/<action(connect|manager)>',
    ],
 ],
 
