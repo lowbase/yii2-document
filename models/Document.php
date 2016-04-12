@@ -345,5 +345,25 @@ class Document extends \yii\db\ActiveRecord
         }
         return true;
     }
+    
+      /**
+     * @param bool $insert
+     * @return bool
+     */
+    public function beforeSave($insert)
+    {
+        if (parent::beforeSave($insert)) {
+            if ($this->isNewRecord && !$this->position) {
+                $model = self::find()
+                    ->select(['position'])
+                    ->where(['parent_id' => $this->parent_id])
+                    ->orderBy(['position' => SORT_DESC])
+                    ->one();
+                $this->position = ($model && $model->position) ? $model->position+1 : 1;
+            }
+            return true;
+        }
+        return false;
+    }
 
 }
