@@ -130,7 +130,7 @@ class Visit extends \yii\db\ActiveRecord
         $table = self::tableName();
         $group_by = ($shedule) ? 'DATE(created_at)' : 'document_id';
         if ($document_ids) {
-            $ids = implode(',', $document_ids);
+            $ids = (is_array($document_ids)) ? implode(',', $document_ids) : $document_ids;
             $sql = 'SELECT date(created_at) as created_at , document_id, count(document_id) as count FROM ' . $table . ' where document_id IN ('.$ids.') GROUP BY ' . $group_by;
         } else {
             $sql = 'SELECT date(created_at) as created_at , document_id, count(document_id) as count FROM ' . $table . ' GROUP BY ' . $group_by;
