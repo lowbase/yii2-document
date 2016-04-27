@@ -70,8 +70,8 @@ class Document extends \yii\db\ActiveRecord
                 'value' => date('Y-m-d H:i:s'),
             ],[
                 'class' => BlameableBehavior::className(),
-                'createdByAttribute' => 'created_by',
-                'updatedByAttribute' => 'updated_by',
+                'createdByAttribute' => (Yii::$app->user->isGuest) ? null : 'created_by',
+                'updatedByAttribute' => (Yii::$app->user->isGuest) ? null : 'updated_by',
             ]];
     }
 
@@ -234,7 +234,7 @@ class Document extends \yii\db\ActiveRecord
         if (isset($changedAttributes['parent_id'])) {
             self::folder($changedAttributes['parent_id']);
         }
-        
+
         return true;
     }
 
