@@ -11,7 +11,9 @@ namespace lowbase\document;
 use yii\web\AssetBundle;
 
 /**
- * Widget asset bundle
+ * Подключение CSS и JS
+ * Class DocumentAsset
+ * @package lowbase\document
  */
 class DocumentAsset extends AssetBundle
 {
