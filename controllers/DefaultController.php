@@ -11,7 +11,9 @@ namespace lowbase\document\controllers;
 use yii\web\Controller;
 
 /**
- * Default controller for the `document` module
+ * Главный контроллер модуля документы
+ * Class DefaultController
+ * @package lowbase\document\controllers
  */
 class DefaultController extends Controller
 {
