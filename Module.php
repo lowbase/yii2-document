@@ -9,20 +9,16 @@
 namespace lowbase\document;
 
 /**
- * document module definition class
+ * Модуль документов
+ * Class Module
+ * @package lowbase\document
  */
 class Module extends \yii\base\Module
 {
-    /**
-     * @inheritdoc
-     */
     public $controllerNamespace = 'lowbase\document\controllers';
-
-    public $documentPhotoPath = 'attach/document';
 
     /**
      * Инициализация
-     * @inheritdoc
      */
     public function init()
     {
