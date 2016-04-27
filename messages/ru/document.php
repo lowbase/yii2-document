@@ -5,6 +5,8 @@
  * @copyright Copyright &copy; Yuri Shekhovtsov, lowbase.ru, 2015 - 2016
  * @version   1.0.0
  */
+
+// Указаны все надписи, встречающиеся в модуле
 return [
     'Ошибка' => 'Ошибка',
     'Результат' => 'Результат',
