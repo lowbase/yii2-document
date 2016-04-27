@@ -11,9 +11,14 @@ namespace lowbase\document\components;
 use yii\base\Widget;
 use Yii;
 
+/**
+ * Отображение документов в виде дерева
+ * Class TreeWidget
+ * @package lowbase\document\components
+ */
 class TreeWidget extends Widget
 {
-    public $data = [];
+    public $data = []; // маассив документов
 
     public function run()
     {
@@ -28,6 +33,7 @@ class TreeWidget extends Widget
                 ];
             }
         }
+        // Преобразуем в JSON
         $data = json_encode($data, JSON_UNESCAPED_UNICODE);
         return $this->render('treeWidget', ['data' => $data]);
     }
