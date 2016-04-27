@@ -7,7 +7,7 @@ use Yii;
 use yii\behaviors\TimestampBehavior;
 
 /**
- * This is the model class for table "lb_visit".
+ * Просмотры статьи
  *
  * @property integer $id
  * @property string $created_at
@@ -20,10 +20,12 @@ use yii\behaviors\TimestampBehavior;
  */
 class Visit extends \yii\db\ActiveRecord
 {
-    public $count;
+    public $count;  // Количество просмотров
+
     /**
-     * @inheritdoc
-     *  Автозаполнение полей created_at и update_at
+     * Автозаполнение даты просмотра
+     * документа
+     * @return array
      */
     public function behaviors()
     {
@@ -35,8 +37,10 @@ class Visit extends \yii\db\ActiveRecord
                 'value' => date('Y-m-d H:i:s'),
             ]];
     }
+
     /**
-     * @inheritdoc
+     * Наименование таблицы
+     * @return string
      */
     public static function tableName()
     {
@@ -44,21 +48,23 @@ class Visit extends \yii\db\ActiveRecord
     }
 
     /**
-     * @inheritdoc
+     * Правила валидации
+     * @return array
      */
     public function rules()
     {
         return [
-            [['document_id', 'ip'], 'required'],
-            [['document_id', 'user_id', 'count'], 'integer'],
-            [['user_agent'], 'string'],
-            [['ip'], 'string', 'max' => 20],
+            [['document_id', 'ip'], 'required'],    // Обязательные поля для заполнения
+            [['document_id', 'user_id', 'count'], 'integer'],   // Целочисленные значения
+            [['user_agent'], 'string'], // Текстовое значение
+            [['ip'], 'string', 'max' => 20],    // Строка (максимум 20 символов)
             [['document_id'], 'exist', 'skipOnError' => true, 'targetClass' => Document::className(), 'targetAttribute' => ['document_id' => 'id']],
         ];
     }
 
     /**
-     * @inheritdoc
+     * Наименование полей аттрибутов
+     * @return array
      */
     public function attributeLabels()
     {
@@ -73,6 +79,7 @@ class Visit extends \yii\db\ActiveRecord
     }
 
     /**
+     * Документ
      * @return \yii\db\ActiveQuery
      */
     public function getDocument()
@@ -81,22 +88,24 @@ class Visit extends \yii\db\ActiveRecord
     }
 
     /**
-     * Фиксируем посещение документа
-     * не более 1 раза в день с одного IP
-     * @param $docment_id
+     * Фиксирум просмотр документа
+     * Не более 1 раза с одного IP в день
+     * @param $document_id - ID документа
      * @return bool
      */
-    public static function check($docment_id)
+    public static function check($document_id)
     {
         $ip = $_SERVER["REMOTE_ADDR"];
+        // Проверяем наличие просмотров за сегодня с этого IP
         $model = Visit::find()->where('document_id=:document_id && ip=:ip && created_at>=:created_at', [
-            ':document_id' => $docment_id,
+            ':document_id' => $document_id,
             ':ip' => $ip,
             ':created_at' => date('Y-m-d'). ' 00:00:00',
         ])->count();
+        // Сохраняем запись
         if (!$model) {
             $visit = new Visit();
-            $visit->document_id = $docment_id;
+            $visit->document_id = $document_id;
             $visit->ip = $ip;
             $visit->user_id = (Yii::$app->user->isGuest) ? null : Yii::$app->user->id;
             $visit->user_agent = $_SERVER['HTTP_USER_AGENT'];
@@ -111,8 +120,9 @@ class Visit extends \yii\db\ActiveRecord
      * Получить просмотры документа/ов
      * при shedule = flase - общее количество за все время
      * при shedule = true - количество просмотров, сгруппированные по дням
-     * @param null $document_ids
-     * @param bool $shedule
+     * 
+     * @param null $document_ids - ID документа (-ов)
+     * @param bool $shedule - включить расписание просмотров?
      * @return array|\yii\db\ActiveRecord[] - возвращает только дату, id документа, кол-во просмотров
      */
     public static function getAll($document_ids = null, $shedule = false)
@@ -129,5 +139,4 @@ class Visit extends \yii\db\ActiveRecord
 
         return $model;
     }
-
 }
