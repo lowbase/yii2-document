@@ -13,35 +13,38 @@ use yii\base\Model;
 use yii\data\ActiveDataProvider;
 
 /**
- * TemplateSearch represents the model behind the search form about `common\modules\document\models\Template`.
+ * Поиск среди шаблоново документов
+ * Class TemplateSearch
+ * @package lowbase\document\models
  */
 class TemplateSearch extends Template
 {
+    const COUNT = 50; // количество шаблонов на одной странице
+
     /**
-     * @inheritdoc
+     * Правила валидации
+     * @return array
      */
     public function rules()
     {
         return [
-            [['id'], 'integer'],
-            [['name', 'description', 'path'], 'safe'],
+            [['id'], 'integer'],    // Целочисленные значения
+            [['name', 'description', 'path'], 'safe'],  // Безопасные аттрибуты
         ];
     }
 
     /**
-     * @inheritdoc
+     * Сценарии
+     * @return array
      */
     public function scenarios()
     {
-        // bypass scenarios() implementation in the parent class
         return Model::scenarios();
     }
 
     /**
-     * Creates data provider instance with search query applied
-     *
-     * @param array $params
-     *
+     * Создает DataProvider на основе переданных данных
+     * @param $params - параметры
      * @return ActiveDataProvider
      */
     public function search($params)
@@ -51,18 +54,19 @@ class TemplateSearch extends Template
         $dataProvider = new ActiveDataProvider([
             'query' => $query,
             'pagination' => [
-                'pageSize'=>50,
+                'pageSize'=> $this::COUNT,
             ],
         ]);
 
         $this->load($params);
 
+        // Если валидация не пройдена, то ничего не выводить
         if (!$this->validate()) {
-            // uncomment the following line if you do not want to return any records when validation fails
-            // $query->where('0=1');
+            $query->where('0=1');
             return $dataProvider;
         }
-
+        
+        // Фильтрация
         $query->andFilterWhere([
             'id' => $this->id,
         ]);
