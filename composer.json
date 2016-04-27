@@ -12,11 +12,13 @@
   ],
   "require": {
     "yiisoft/yii2": "*",
+    "yiisoft/yii2-bootstrap": "*",
     "kartik-v/yii2-mpdf":"*",
     "kartik-v/yii2-widgets":"*",
     "kartik-v/yii2-grid":"*",
     "mihaildev/yii2-elfinder": "*",
-    "mihaildev/yii2-ckeditor": "*"
+    "mihaildev/yii2-ckeditor": "*",
+    "lowbase/jstree": "*"
   },
   "autoload": {
     "psr-4": {
