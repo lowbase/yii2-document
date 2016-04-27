@@ -14,7 +14,7 @@ use yii\behaviors\BlameableBehavior;
 use yii\validators\Validator;
 
 /**
- * This is the model class for table "lb_document".
+ * Документы (универсальные сущности)
  *
  * @property integer $id
  * @property string $name
@@ -35,32 +35,20 @@ use yii\validators\Validator;
  * @property integer $updated_by
  * @property integer $position
  *
- * @property string $option_1
- * @property string $option_2
- * @property string $option_3
- * @property string $option_4
- * @property string $option_5
- *
  * @property Template $template
  * @property Document $parent
  * @property Document[] $documents
- * @property FieldValue[] $lbFieldValues
  * @property Visit[] $lbVisits
  */
 class Document extends \yii\db\ActiveRecord
 {
-    const OPTIONS_COUNT = Template::OPTIONS_COUNT;
-
-    const STATUS_BLOCKED = 0;
-    const STATUS_ACTIVE = 1;
-    const STATUS_WAIT = 2;
-
-    const FILES_PATH = 'attach/document/autoload/';
-
-    public $file;
+    const STATUS_BLOCKED = 0;   //  Скрыт
+    const STATUS_ACTIVE = 1;    // Активен
+    const STATUS_WAIT = 2;      // На модерации
 
     /**
-     * @inheritdoc
+     * Наименование таблицы документа
+     * @return string
      */
     public static function tableName()
     {
@@ -68,8 +56,9 @@ class Document extends \yii\db\ActiveRecord
     }
 
     /**
-     * @inheritdoc
-     *  Автозаполнение полей created_at и update_at
+     * Автозаполнение даты создания и редактирования
+     * Автозаполнение пользоватлея, кто создал и кто отредактировал
+     * @return array
      */
     public function behaviors()
     {
@@ -88,6 +77,7 @@ class Document extends \yii\db\ActiveRecord
 
     /**
      * Статусы документов
+     * @return array
      */
     public static function getStatusArray()
     {
@@ -99,43 +89,35 @@ class Document extends \yii\db\ActiveRecord
     }
 
     /**
-     * @inheritdoc
+     * Правила валидации
+     * @return array
      */
     public function rules()
     {
-        $rules = [
-            [['alias'], 'unique'],
-            [['name', 'alias'], 'required'],
-            [['meta_keywords', 'meta_description', 'annotation', 'content'], 'string'],
-            [['status', 'is_folder', 'parent_id', 'template_id', 'position'], 'integer'],
-            [['created_at', 'updated_at'], 'safe'],
-            [['name', 'alias', 'title', 'image'], 'string', 'max' => 255],
+        return [
+            [['alias'], 'unique'], // Уникальное значение
+            [['name', 'alias'], 'required'],    // Обязательные значения
+            [['meta_keywords', 'meta_description', 'annotation', 'content'], 'string'], // Текстовые значения
+            [['status', 'is_folder', 'parent_id', 'template_id', 'position'], 'integer'],   // Целочисленные значения
+            [['created_at', 'updated_at'], 'safe'], // Безопасные аттрибуты
+            [['name', 'alias', 'title', 'image'], 'string', 'max' => 255],  // Строковое значение (максимум 255 символов)
             [['template_id'], 'exist', 'skipOnError' => true, 'targetClass' => Template::className(), 'targetAttribute' => ['template_id' => 'id']],
             [['parent_id'], 'exist', 'skipOnError' => true, 'targetClass' => Document::className(), 'targetAttribute' => ['parent_id' => 'id']],
-            ['status', 'in', 'range' => array_keys(self::getStatusArray())],
-            ['file','file', 'extensions' => ['png', 'jpg', 'gif', 'jpeg']],
-            [['name', 'title', 'meta_keywords', 'meta_description', 'annotation', 'alias'], 'filter', 'filter' => 'trim'],
-            [['title', 'meta_keywords', 'meta_description', 'annotation', 'content', 'image', 'parent_id', 'template_id', 'position'], 'default', 'value' => null],
-            [['is_folder'], 'default', 'value' => 0],
-            [['status'], 'default', 'value' => self::STATUS_ACTIVE],
+            ['status', 'in', 'range' => array_keys(self::getStatusArray())],    // Статус должен быть из списка статусов
+            [['name', 'title', 'meta_keywords', 'meta_description', 'annotation', 'alias'], 'filter', 'filter' => 'trim'],  // Обрезаем строки по краям
+            [['title', 'meta_keywords', 'meta_description', 'annotation', 'content', 'image', 'parent_id', 'template_id', 'position'], 'default', 'value' => null], // По умолчанию = null
+            [['is_folder'], 'default', 'value' => 0],   // По умолчанию не папка, а документ
+            [['status'], 'default', 'value' => self::STATUS_ACTIVE],    // По умолчанию статус "Опубликован"
         ];
-
-        $options = [];
-        for ($i = 1; $i <= self::OPTIONS_COUNT; $i++) {
-            $options[] = 'option_' . $i;
-        }
-        $rules[] = [$options, 'string'];
-        $rules[] = [$options, 'default', 'value' => null];
-
-        return $rules;
     }
 
     /**
-     * @inheritdoc
+     * Наименования полей аттрибутов
+     * @return array
      */
     public function attributeLabels()
     {
-        $labels = [
+        return [
             'id' => Yii::t('document', 'ID'),
             'name' => Yii::t('document', 'Наименование'),
             'alias' => Yii::t('document', 'Алиас'),
@@ -157,20 +139,10 @@ class Document extends \yii\db\ActiveRecord
             'file' => Yii::t('document', 'Изображения'),
 
         ];
-
-        if ($this->template_id) {
-            $template = Template::findOne($this->template_id);
-        }
-
-        for ($i = 1; $i <= self::OPTIONS_COUNT; $i++) {
-            $option_name = 'option_' . $i . '_name';
-            $labels['option_' . $i] = (isset($template->$option_name) && $template->$option_name) ? $template->$option_name : Yii::t('document', 'Опция') . ' ' . $i;
-        }
-
-        return $labels;
     }
 
     /**
+     * Шаблон документа
      * @return \yii\db\ActiveQuery
      */
     public function getTemplate()
@@ -179,6 +151,7 @@ class Document extends \yii\db\ActiveRecord
     }
 
     /**
+     * Родительский документ
      * @return \yii\db\ActiveQuery
      */
     public function getParent()
@@ -187,7 +160,8 @@ class Document extends \yii\db\ActiveRecord
     }
 
     /**
-     * @return \yii\db\ActiveQuery
+     * Дочерние документы
+     * @return $this
      */
     public function getChildren()
     {
@@ -195,6 +169,7 @@ class Document extends \yii\db\ActiveRecord
     }
 
     /**
+     * Просмотры документа
      * @return \yii\db\ActiveQuery
      */
     public function getVisits()
@@ -203,17 +178,9 @@ class Document extends \yii\db\ActiveRecord
     }
 
     /**
-     * @return \yii\db\ActiveQuery
-     */
-    public function getImages()
-    {
-        return $this->hasMany(Image::className(), ['parent_id' => 'id']);
-    }
-    
-    /**
      * Получить список документов массивом
-     * @param null $parent_id
-     * @return array
+     * @param null $parent_id - родительский документ
+     * @return array [ID => Название]
      */
     public static function getAll($parent_id = null)
     {
@@ -230,26 +197,27 @@ class Document extends \yii\db\ActiveRecord
         }
         return $documents;
     }
-    
+
     /**
-     * Пометка или снятие докуента как папки
-     * @param $id
-     * @param bool $child_delete
+     * Пометка или снятие документа как папки
+     * @param $id - ID документа
+     * @param bool $child_delete - дочерние документы удаляются?
      * @return bool
      */
     public static function folder($id, $child_delete = false)
     {
-        $node = Document::findOne($id);
+        $model = Document::findOne($id);
         $db = self::getDb();
-        if ($node && $node->children && !$node->is_folder) {
-            $db->createCommand()->update('lb_document', ['is_folder' => 1], ['id' => $node->id])->execute();
+        // Помечаем документ как папку если имеются дочерние документы
+        if ($model && $model->children && !$model->is_folder) {
+            $db->createCommand()->update('lb_document', ['is_folder' => 1], ['id' => $model->id])->execute();
         }
-        if (($node && !$node->children && $node->is_folder) ||
-            ($node && count($node->children) === 1 && $node->is_folder && $child_delete)) {
-            $db->createCommand()->update('lb_document', ['is_folder' => 0], ['id' => $node->id])->execute();
+        // Помечаем папку как документ если нет дочерних документов или
+        // имеется один дочерний докуемнт, который будет удален
+        if (($model && !$model->children && $model->is_folder) ||
+            ($model && count($model->children) === 1 && $model->is_folder && $child_delete)) {
+            $db->createCommand()->update('lb_document', ['is_folder' => 0], ['id' => $model->id])->execute();
         }
-
-        return true;
     }
 
     /**
@@ -260,93 +228,36 @@ class Document extends \yii\db\ActiveRecord
     public function afterSave($insert, $changedAttributes)
     {
         parent::afterSave($insert, $changedAttributes);
+        // Пометка "Папкой" текущего документа при необходимости
         self::folder($this->parent_id);
+        // Пометка "Папкой" родительского документа при необходимости
         if (isset($changedAttributes['parent_id'])) {
             self::folder($changedAttributes['parent_id']);
         }
-        //Сохранение файла
-        if ($this->file) {
-            $dir = self::FILES_PATH . $this->id . '/';
-            if (!file_exists($dir)) {
-                mkdir($dir, 0777, true);
-            }
-            $ext = "." . end(explode(".", $this->file));
-            $url = $dir . time() . $ext;
-            $this->file->saveAs($url);
-            $model = new Image();
-            $model->name  = $this->file->name;
-            $model->path = $url;
-            $model->parent_id = $this->id;
-            $model->save();
-        }
+        
         return true;
     }
 
     /**
+     * Перед удалением проверяем количество дочерних
+     * документов у родительского документа.
+     * Если это был единственный документ, то у родителя
+     * снимаем значение "Папка"
      * @return bool
      */
     public function beforeDelete()
     {
         parent::beforeDelete();
+        // Снятие значения "Папка" у родительского документа при необходимости
         self::folder($this->parent_id, true);
         return true;
     }
 
-    /**
-     * Валидация опций в зависимости от шаблона
-     * @return bool
-     */
-    public function optionValidate()
-    {
-        $template = Template::findOne($this->template_id);
-        if ($template) {
-            for ($i = 1; $i <= Template::OPTIONS_COUNT; $i++) {
-                $option_type = 'option_' . $i . '_type';
-                $option_require = 'option_' . $i . '_require';
-                $option_param = 'option_' . $i . '_param';
-                if ($template->$option_type) {
-                    switch ($template->$option_type) {
-                        case 1:   //число целое
-                        case 4:   //выключатель
-                        case 7:   //список дочерних документов
-                            $this->validators[] = Validator::createValidator('integer', $this, 'option_'.$i);
-                            break;
-                        case 2:   //число
-                            $this->validators[] = Validator::createValidator('double', $this, 'option_'.$i);
-                            break;
-                        case 3:   //строка
-                        case 5:   //текст
-                        case 6:   //файл (выбор)
-                            $this->validators[] = Validator::createValidator('string', $this, 'option_'.$i);
-                            break;
-                        case 8:    //регулярное выражение
-                            $pattern = ($template->$option_param) ? $template->$option_param : '/\w/';
-                            $this->validators[] = Validator::createValidator('match', $this, 'option_'.$i, [
-                                'pattern' => $pattern
-                            ]);
-                            break;
-                    }
-                    if ($template->$option_require) {
-                            $this->validators[] = Validator::createValidator('required', $this, 'option_'.$i);
-                    }
-                }
-            }
-        }
-        return true;
-    }
 
     /**
-     * @return bool
-     */
-    public function beforeValidate()
-    {
-        if ($this->scenario != 'search') {
-            $this->optionValidate();
-        }
-        return true;
-    }
-    
-      /**
+     * Перед сохранением документа выставляем
+     * ему необходимую позицию, инкрементируя последнюю
+     * позицию из текущей директории
      * @param bool $insert
      * @return bool
      */
