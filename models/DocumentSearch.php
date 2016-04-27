@@ -13,48 +13,53 @@ use yii\base\Model;
 use yii\data\ActiveDataProvider;
 
 /**
- * DocumentSearch represents the model behind the search form about `common\modules\document\models\Document`.
+ * Поиск среди документов
+ * Class DocumentSearch
+ * @package lowbase\document\models
  */
 class DocumentSearch extends Document
 {
-    public $id_from;
-    public $id_till;
-    public $position_from;
-    public $position_till;
-    public $created_at_from;
-    public $created_at_till;
-    public $updated_at_from;
-    public $updated_at_till;
+    const COUNT = 50; // количество документов на одной странице
+
+    public $id_from;        // Начало диапазона поиска по ID
+    public $id_till;        // Конец диапазона поиска по ID
+    public $position_from;  // Начало диапазона поиска по позиции
+    public $position_till;  // Конец диапазона поиска по позиции
+    public $created_at_from;// Начало диапазона поиска по дате создания
+    public $created_at_till;// Конец диапазона поиска по дате создания
+    public $updated_at_from;// Начало диапазона поиска по дате редактирования
+    public $updated_at_till;// Конец диапазона поиска по дате редактирования
+
     /**
-     * @inheritdoc
+     * Правила валидации
+     * @return array
      */
-   public function rules()
+    public function rules()
     {
-        $rules = [
-            [['id', 'position', 'id_from', 'id_till', 'position_from', 'position_till', 'status', 'is_folder', 'parent_id', 'template_id', 'created_by', 'updated_by'], 'integer', 'on' => 'search'],
-            [['name', 'alias', 'title', 'meta_keywords', 'meta_description', 'annotation', 'content', 'image', 'created_at', 'created_at_from', 'created_at_till',  'updated_at_from', 'updated_at_till', 'updated_at'], 'safe', 'on' => 'search'],
+        return [
+            [['id', 'position', 'id_from', 'id_till', 'position_from',
+                'position_till', 'status', 'is_folder', 'parent_id', 'template_id',
+                'created_by', 'updated_by'], 'integer', 'on' => 'search'],  // Целочисленные значения
+            [['name', 'alias', 'title', 'meta_keywords', 'meta_description',
+                'annotation', 'content', 'image', 'created_at', 'created_at_from',
+                'created_at_till',  'updated_at_from', 'updated_at_till',
+                'updated_at'], 'safe', 'on' => 'search'],   // Безопасные аттрибуты
         ];
-
-        $options = [];
-        for ($i = 1; $i <= self::OPTIONS_COUNT; $i++) {
-            $options[] = 'option_' . $i;
-        }
-        $rules[] = [$options, 'safe', 'on' => 'search'];
-
-        return $rules;
     }
 
 
     /**
-     * @inheritdoc
+     * Сценарии
+     * @return array
      */
     public function scenarios()
     {
-        // bypass scenarios() implementation in the parent class
         return Model::scenarios();
     }
 
     /**
+     * Названия дополнительных полей
+     * поиска документов
      * @return array
      */
     public function attributeLabels()
@@ -72,23 +77,19 @@ class DocumentSearch extends Document
     }
 
     /**
-     * Creates data provider instance with search query applied
-     *
-     * @param array $params
-     *
+     * Создает DataProvider на основе переданных данных
+     * @param $params - параметры
      * @return ActiveDataProvider
      */
     public function search($params)
     {
-        $this->scenario = 'search';
+        $this->scenario = 'search'; // Устанавливаем сценарий поиска
         $query = Document::find();
-
-        // add conditions that should always apply here
 
         $dataProvider = new ActiveDataProvider([
             'query' => $query,
             'pagination' => [
-                'pageSize'=>50,
+                'pageSize'=> $this::COUNT,
             ],
             'sort' => array(
                 'defaultOrder' => ['created_at' => SORT_DESC],
@@ -97,13 +98,13 @@ class DocumentSearch extends Document
 
         $this->load($params);
 
+        // Если валидация не пройдена, то ничего не выводить
         if (!$this->validate()) {
-            // uncomment the following line if you do not want to return any records when validation fails
-            // $query->where('0=1');
+            $query->where('0=1');
             return $dataProvider;
         }
-
-        // grid filtering conditions
+        
+        // Фильтрация
         $query->andFilterWhere([
             'id' => $this->id,
             'position' => $this->position,
@@ -130,6 +131,7 @@ class DocumentSearch extends Document
             ->andFilterWhere(['like', 'content', $this->content])
             ->andFilterWhere(['like', 'image', $this->image])
             ->andFilterWhere(['like', 'created_at', $this->created_at]);
+        
         if ($this->id_from){
             $query->andFilterWhere(['>=', 'id', $this->id_from]);
         }
@@ -144,27 +146,19 @@ class DocumentSearch extends Document
         }
         if ($this->created_at_from) {
             $date_from = new \DateTime($this->created_at_from);
-            $this->created_at_from = $date_from->format('Y-m-d');
-            $query->andFilterWhere(['>=', 'created_at', $this->created_at_from]);
-            $this->created_at_from = $date_from->format('d.m.Y');
+            $query->andFilterWhere(['>=', 'created_at', $date_from->format('Y-m-d')]);
         }
         if ($this->created_at_till) {
             $date_till = new \DateTime($this->created_at_till);
-            $this->created_at_till = $date_till->format('Y-m-d');
-            $query->andFilterWhere(['<=', 'created_at', $this->created_at_till]);
-            $this->created_at_till = $date_till->format('d.m.Y');
+            $query->andFilterWhere(['<=', 'created_at', $date_till->format('Y-m-d')]);
         }
         if ($this->updated_at_from) {
             $date_from = new \DateTime($this->updated_at_from);
-            $this->updated_at_from = $date_from->format('Y-m-d');
-            $query->andFilterWhere(['>=', 'updated_at', $this->updated_at_from]);
-            $this->updated_at_from = $date_from->format('d.m.Y');
+            $query->andFilterWhere(['>=', 'updated_at', $date_from->format('Y-m-d')]);
         }
         if ($this->updated_at_till) {
             $date_till = new \DateTime($this->updated_at_till);
-            $this->updated_at_till = $date_till->format('Y-m-d');
-            $query->andFilterWhere(['<=', 'updated_at', $this->updated_at_till]);
-            $this->updated_at_till = $date_till->format('d.m.Y');
+            $query->andFilterWhere(['<=', 'updated_at', $date_till->format('Y-m-d')]);
         }
 
         return $dataProvider;
