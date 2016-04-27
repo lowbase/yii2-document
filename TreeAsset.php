@@ -11,7 +11,9 @@ namespace lowbase\document;
 use yii\web\AssetBundle;
 
 /**
- * Widget asset bundle
+ * Подключение CSS и JS для компонента JSTree
+ * Class TreeAsset
+ * @package lowbase\document
  */
 class TreeAsset extends AssetBundle
 {
