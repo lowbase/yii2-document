@@ -9,247 +9,225 @@
 use lowbase\document\models\Document;
 use lowbase\document\models\Template;
 use yii\helpers\Html;
-use mihaildev\ckeditor\CKEditor;
-use mihaildev\elfinder\ElFinder;
-use mihaildev\elfinder\InputFile;
-use kartik\widgets\Select2;
-use kartik\widgets\ActiveForm;
-use yii\bootstrap\ButtonDropdown;
-use lowbase\document\DocumentAsset;
+use kartik\grid\GridView;
 use yii\helpers\Url;
+use kartik\date\DatePicker;
+use lowbase\document\DocumentAsset;
 
 /* @var $this yii\web\View */
-/* @var $model app\modules\document\models\Document */
-/* @var $form yii\widgets\ActiveForm */
+/* @var $searchModel app\modules\document\models\DocumentSearch */
+/* @var $dataProvider yii\data\ActiveDataProvider */
+
+$this->title = Yii::t('document', 'Менеджер документов');
+$this->params['breadcrumbs'][] = $this->title;
 DocumentAsset::register($this);
 ?>
 
-<div class="document-form">
-
-    <?php $form = ActiveForm::begin([
-        'id' => 'document',
-        'enableClientValidation' => false,
-        'method' => 'POST',
-        'options' => [
-            'enctype'=>'multipart/form-data'
-        ]
-    ]); ?>
+<div class="document-index">
 
     <div class="row">
         <div class="col-lg-12">
-            <p>
-                <?= Html::submitButton('<i class="glyphicon glyphicon-floppy-disk"></i> '.Yii::t('document', 'Сохранить'), ['class' => 'btn btn-primary']) ?>
-                <?php
-                if (!$model->isNewRecord) {
-                    echo Html::a('<i class="glyphicon glyphicon-level-up"></i> '.Yii::t('document', 'Создать дочерний'), ['create', 'parent_id' => $model->id], [
-                        'class' => 'btn btn-default',
-                    ])." ";
-                    echo Html::a('<i class="glyphicon glyphicon-trash"></i> '.Yii::t('document', 'Удалить'), ['delete', 'id' => $model->id], [
-                        'class' => 'btn btn-danger',
-                        'data' => [
-                            'confirm' => Yii::t('document', 'Вы уверены, что хотите удалить документ?'),
-                            'method' => 'post',
-                        ],
-                    ]);
-                }
-                ?>
-                <?= Html::a('<i class="glyphicon glyphicon-menu-left"></i> '.Yii::t('document', 'Отмена'), ['index'], [
-                    'class' => 'btn btn-default',
-                ]) ?>
-            </p>
+            <?= $this->render('../default/alert');?>
         </div>
     </div>
 
-    <div class="row">
-        <div class="col-lg-6">
-            <?= $form->field($model, 'name')->textInput(['maxlength' => true]) ?>
-        </div>
-        <div class="col-lg-6">
-            <?= $form->field($model, 'title', [
-                'addon' => [
-                    'append' => [
-                        'content'=> Html::a(Yii::t('document', 'Повторить название'), '#', [
-                            'class' =>['btn btn-default repeat-name']]),
-                        'asButton'=>true,
-                    ],
-                    'groupOptions' => [
-                        'id' => 'title-btn'
+    <?= $this->render('_search', ['model' => $searchModel]);?>
+    <?= $this->render('_tree', ['model' => $searchModel]);?>
+
+    <?php
+        $gridColumns = [
+            [
+                'class' => 'kartik\grid\SerialColumn',
+                'contentOptions' => ['class'=>'kartik-sheet-style'],
+                'width' => '30px',
+                'header' => '',
+                'headerOptions' => ['class' => 'kartik-sheet-style']
+            ],
+            [
+                'attribute' => 'id',
+                'width' => '70px',
+                'format' => 'raw',
+                'value' => function ($model) {
+                    $icon = ($model->is_folder) ? 'glyphicon glyphicon-folder-open' : 'glyphicon glyphicon-file';
+                    return "<span class='".$icon."'></span> " . $model->id;
+                },
+            ],
+            'name',
+            // 'alias',
+            // 'title',
+            // 'meta_keywords:ntext',
+            // 'meta_description:ntext',
+            // 'annotation:ntext',
+            // 'content:ntext',
+            // 'image',
+            [
+                'attribute' => 'parent_id',
+                'vAlign' => 'middle',
+                'format' => 'raw',
+                'width' => '150px',
+                'value' => function ($model) {
+                    return ($model->parent_id && $model->parent) ? $model->parent->name : null;
+                },
+                'filter' => Document::getAll(),
+                'filterType'=> GridView::FILTER_SELECT2,
+                'filterWidgetOptions' => [
+                    'pluginOptions' => ['allowClear'=>true],
+                ],
+                'filterInputOptions' => [
+                    'placeholder' => ' ',
+                    'class' => 'form-control'
+                ],
+            ],
+            [
+                'attribute' => 'template_id',
+                'vAlign' => 'middle',
+                'format' => 'raw',
+                'width' => '150px',
+                'value' => function ($model) {
+                    return ($model->template_id && $model->template) ? $model->template->name : null;
+                },
+                'filter' => Template::getAll(),
+                'filterType'=> GridView::FILTER_SELECT2,
+                'filterWidgetOptions' => [
+                    'pluginOptions' => ['allowClear'=>true],
+                ],
+                'filterInputOptions' => [
+                    'placeholder' => ' ',
+                    'class' => 'form-control'
+                ],
+            ],
+            // 'is_folder',
+            [
+                'attribute' => 'created_at',
+                'format' =>  ['date', 'dd.MM.Y HH:mm:ss'],
+                'width'=>'200px',
+                'filter' => DatePicker::widget([
+                    'value'=> isset($_GET['DocumentSearch']['created_at'])?$_GET['DocumentSearch']['created_at']:'',
+                    'name' => 'DocumentSearch[created_at]',
+                    'type' => DatePicker::TYPE_COMPONENT_APPEND,
+                    'pluginOptions' => [
+                        'format' => 'dd.mm.yyyy',
+                        'todayHighlight' => true
                     ]
-                ]
-            ]); ?>
-        </div>
-    </div>
+                ])
+            ],
+            // 'updated_at',
+             'created_by',
+            [
+                'attribute' => 'status',
+                'vAlign' => 'middle',
+                'format' => 'raw',
+                'value' => function ($model) {
+                    switch ($model->status) {
+                        case Document::STATUS_BLOCKED;
+                            return '<span class="label label-danger">
+                            <i class="glyphicon glyphicon-lock"></i> '.Document::getStatusArray()[Document::STATUS_BLOCKED].'</span>';
+                            break;
+                        case Document::STATUS_WAIT:
+                            return '<span class="label label-warning">
+                            <i class="glyphicon glyphicon-hourglass"></i> '.Document::getStatusArray()[Document::STATUS_WAIT].'</span>';
+                            break;
+                        case Document::STATUS_ACTIVE:
+                            return '<span class="label label-success">
+                            <i class="glyphicon glyphicon-ok"></i> '.Document::getStatusArray()[Document::STATUS_ACTIVE].'</span>';
+                            break;
+                    }
+                    return false;
+                },
+                'filter' => Document::getStatusArray(),
+            ],
+            // 'updated_by',
+            [
+                'template' => '{view} {update} {delete}',
+                'class'=>'kartik\grid\ActionColumn',
+            ],
+            [
+                'class'=>'kartik\grid\CheckboxColumn',
+                'headerOptions'=>['class'=>'kartik-sheet-style'],
+            ],
+        ];
 
-    <div class="row">
-        <div class="col-lg-6">
-            <?= $form->field($model, 'alias', [
-                'addon' => [
-                    'append' => [
-                        'content' => ButtonDropdown::widget([
-                            'label' => 'Сформировать',
-                            'dropdown' => [
-                                'items' => [
-                                    ['label' => Yii::t('document', 'Из названия'), 'url' => '#', 'options' => ['class'=>'translate-name']],
-                                    ['label' => Yii::t('document', 'Из заголовка'), 'url' => '#', 'options' => ['class'=>'translate-title']],
-                                ],
-                            ],
-                            'options' => ['class'=>'btn-default']
-                        ]),
-                        'asButton' => true
-                    ],
-                    'groupOptions' => [
-                        'id' => 'alias-btn'
-                    ]
-                ]
-            ]); ?>
-        </div>
-        <div class="col-lg-6">
-            <?= $form->field($model, 'status')->dropDownList(Document::getStatusArray()) ?>
-        </div>
-    </div>
-
-    <div class="row">
-        <div class="col-lg-6">
-            <?= $form->field($model, 'parent_id')->widget(Select2::classname(), [
-                'data' => Document::getAll(),
-                'options' => [
-                    'placeholder' => '',
-                    'class' => 'parent_d'
-                ],
-                'pluginOptions' => [
-                    'allowClear' => true
-                ],
-            ]); ?>
-        </div>
-        <div class="col-lg-6">
-            <?= $form->field($model, 'template_id')->widget(Select2::classname(), [
-                'data' => Template::getAll(),
-                'options' => [
-                    'placeholder' => '',
-                    'class' => 'template_id'
-                ],
-                'pluginOptions' => [
-                    'allowClear' => true
-                ],
-            ]); ?>
-        </div>
-    </div>
-
-    <div class="row">
-        <div class="col-lg-6">
-            <?= $form->field($model, 'meta_keywords')->textarea(['rows' => 2]) ?>
-        </div>
-        <div class="col-lg-6">
-            <?= $form->field($model, 'meta_description')->textarea(['rows' => 2]) ?>
-        </div>
-    </div>
-
-    <div class="row">
-        <div class="col-lg-12">
-            <?= $form->field($model, 'annotation')->textarea(['rows' => 2]) ?>
-        </div>
-    </div>
-
-    <div class="row">
-        <div class="col-lg-12">
-            <?= $form->field($model, 'content')->widget(CKEditor::className(), [
-                'editorOptions' => ElFinder::ckeditorOptions('elfinder', []),
-            ]); ?>
-        </div>
-    </div>
-
-    <div class="row">
-        <div class="col-lg-6">
-            <?= $form->field($model, 'image')->widget(InputFile::className(), [
-                'controller'    => 'elfinder',
-                'filter'        => 'image',
-                'template'      => '<div class="input-group">
-                                                {input}<span class="input-group-btn">{button}</span>
-                                            </div>',
-                'options'       => ['class' => 'form-control'],
-                'buttonName'    => Yii::t('document', 'Выбрать файл'),
-                'buttonOptions' => ['class' => 'btn btn-default'],
-                'multiple'      => false
-            ]);
-            ?>
-        </div>
-        <div class="col-lg-6">
-            <?= $form->field($model, 'position')->textInput(['maxlength' => true]) ?>
-        </div>
-    </div>
-
-    <div class="row">
-        <div class="col-lg-12">
-            <?= $form->field($model, 'file')->fileInput(['maxlength' => true]); ?>
-            <?php
-            if ($model->images) {
-                foreach ($model->images as $f) {
-                    echo Html::img('/'.$f->path, ['class' => 'thumb thumbnail']);
-                }
-                echo Html::a(Yii::t('document', '<i class="glyphicon glyphicon-trash"></i> Удалить'),['rmv','id' => $model->id], ['class' => 'btn btn-danger']);
-            }
-
-            ?>
-        </div>
-    </div>
-
-    <div id="options">
-        <?php
-        //Опции документа
-        if ($model->template_id) {
-            for ($i = 1; $i <= Template::OPTIONS_COUNT; $i++) {
-                ?>
-                <div class="row option">
-                    <div class="col-sm-12">
-                        <?= $this->render('_option', [
-                            'model' => $model,
-                            'i' => $i,
-                            'template' => ($model->template_id && isset($model->template)) ? $model->template : null,
-                        ]);?>
-                    </div>
-                </div>
-            <?php
-            }
-        }
+        echo GridView::widget([
+            'layout'=>"{items}\n{summary}\n{pager}",
+            'dataProvider'=> $dataProvider,
+            'filterModel' => $searchModel,
+            'columns' => $gridColumns,
+            'containerOptions' => ['style'=>'overflow: auto'],
+            'headerRowOptions' => ['class'=>'kartik-sheet-style'],
+            'filterRowOptions' => ['class'=>'kartik-sheet-style'],
+            'pjax' => false,
+            'panel' => [
+                'heading' => '<i class="glyphicon glyphicon-book"></i> '.Yii::t('document', Yii::t('document', 'Документы')),
+                'type' => GridView::TYPE_PRIMARY,
+                'before' => Html::a('<span class="glyphicon glyphicon-plus"></span> '.Yii::t('document', 'Добавить'), [
+                    'document/create'], ['class' => 'btn btn-success']). ' '.
+                    Html::button('<span class="glyphicon glyphicon-search"></span> '.Yii::t('document', 'Поиск'), [
+                        'class' => 'filter btn btn-default',
+                        'data-toggle' => 'modal',
+                        'data-target' => '#filter',
+                    ]) . ' '.
+                    Html::button('<span class="glyphicon glyphicon-tree-deciduous"></span> '.Yii::t('document', 'Дерево'), [
+                        'class' => 'filter btn btn-default',
+                        'data-toggle' => 'modal',
+                        'data-target' => '#tree',
+                    ])
+                ,
+                'after' => "<div class='text-right'><b>".Yii::t('document', 'Выбранные').":</b> ".
+                    Html::button('<span class="glyphicon glyphicon-eye-open"></span> '.Yii::t('document', 'Опубликовать'), [
+                        'class' => 'btn btn-default open-all'])." ".
+                    Html::button('<span class="glyphicon glyphicon-eye-close"></span> '.Yii::t('document', 'Скрыть'), [
+                        'class' => 'btn btn-default close-all'])." ".
+                    Html::button('<span class="glyphicon glyphicon-trash"></span> '.Yii::t('document', 'Удалить'), [
+                        'class' => 'btn btn-danger delete-all']).
+                    "</div>"
+            ],
+            'export' => [
+                'fontAwesome' => true
+            ],
+            'bordered' => true,
+            'striped' => true,
+            'condensed' => true,
+            'persistResize' => false,
+            'hover' => true,
+            'responsive' => true,
+        ]);
         ?>
-    </div>
-
-    <?php ActiveForm::end(); ?>
-
 </div>
 
-
-<?php
-$document_id = ($model->isNewRecord) ? 0 : $model->id;
-$this->registerJs("
-    $('.repeat-name').click(function(){
-        var text = $('#document-name').val();
-        $('#document-title').val(text);
-    });
-    $('.translate-name').click(function(){
-        var text = $('#document-name').val().toLowerCase();
-        result = translit(text);
-    $('#document-alias').val(result);
-    });
-    $('.translate-title').click(function(){
-        var text = $('#document-title').val().toLowerCase();
-        result = translit(text);
-    $('#document-alias').val(result);
-    });
-
-    $('.template_id').change(function(){
-        var template_id = $(this).val();
-        $.ajax({
-            url: '".Url::to('/admin/document/options')."',
-            type: 'POST',
-            data: {
-                'id' : " . $document_id . ",
-                'template_id' : template_id
-            },
-            success: function(data){
-                $('#options').html(data);
-            }
-        });
-    });
-");
-?>
+    <?php
+    $this->registerJs('
+            $(".delete-all").click(function(){
+            var keys = $(".grid-view").yiiGridView("getSelectedRows");
+            $.ajax({
+                url: "' . Url::to(['document/multidelete']) . '",
+                type:"POST",
+                data:{keys: keys},
+                success: function(data){
+                    location.reload();
+                }
+                });
+            });
+            $(".open-all").click(function(){
+            var keys = $(".grid-view").yiiGridView("getSelectedRows");
+            $.ajax({
+                url: "' . Url::to(['document/multiactive']) . '",
+                type:"POST",
+                data:{keys: keys},
+                success: function(data){
+                    location.reload();
+                }
+                });
+            });
+            $(".close-all").click(function(){
+            var keys = $(".grid-view").yiiGridView("getSelectedRows");
+            $.ajax({
+                url: "' . Url::to(['document/multiblock']) . '",
+                type:"POST",
+                data:{keys: keys},
+                success: function(data){
+                    location.reload();
+                }
+                });
+            });
+        ');
+    ?>
