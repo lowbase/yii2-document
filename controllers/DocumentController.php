@@ -69,8 +69,13 @@ class DocumentController extends Controller
      */
     public function actionView($id)
     {
+        $model =  $this->findModel($id);
+        $views = Visit::getAll($model->id); // Считаем просмотры
+        $likes = Like::getAll($model->id);  // Считаем лайки
         return $this->render('@vendor/lowbase/yii2-document/views/document/view', [
-            'model' => $this->findModel($id),
+            'model' => $model,
+            'views' => ($views) ?  $views[0]->count : 0,
+            'likes' => ($likes) ?  $likes[0]->count : 0
         ]);
     }
 
@@ -267,11 +272,16 @@ class DocumentController extends Controller
         if ($model == null) {
             throw new NotFoundHttpException(Yii::t('document', 'Запрашиваемая страница не найдена.'));
         }
-        // Фиксируем просмотр документа
-        Visit::check($model->id);
+        Visit::check($model->id);           // Фиксируем просмотр
+        $views = Visit::getAll($model->id); // Считаем просмотры
+        $likes = Like::getAll($model->id);  // Считаем лайки
         // Если задан шаблон отображения, то отображаем согласно нему, иначе стандартное отображение статьи
         $template = (isset($model->template) && $model->template->path) ? $model->template->path : '@vendor/lowbase/yii2-document/views/document/template/default';
-        return $this->render($template, ['model' => $model]);
+        return $this->render($template, [
+            'model' => $model,
+            'views' => ($views) ?  $views[0]->count : 0,
+            'likes' => ($likes) ?  $likes[0]->count : 0
+        ]);
     }
 
     /**
