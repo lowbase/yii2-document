@@ -5,6 +5,7 @@ use lowbase\document\DocumentAsset;
 $this->title = $model->title;
 DocumentAsset::register($this);
 ?>
+
 <div class="lb-document-module-post">
     <h1><?=Html::decode($model->name)?></h1>
 
@@ -23,4 +24,21 @@ DocumentAsset::register($this);
     ?>
 
     <?=Html::decode($model->content)?>
+
+    <p class="hint">
+        <span class="glyphicon glyphicon-eye-open"></span> <?=$views ?>
+        <?= Html::button('<span class="glyphicon glyphicon-thumbs-up"></span> '. $likes, ['class' => 'btn btn-default like', 'id' => $model->id])?>
+    </p>
+
 </div>
+
+<?=$this->registerJs('
+$(".like").click(function(){
+    var id = $(this).attr("id");
+    $.post("/like/"+id, {
+        }, function(data){
+            $("#"+id).html("<span class=\'glyphicon glyphicon-thumbs-up\'></span> "+data);
+        });
+})
+');
+?>
