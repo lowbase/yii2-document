@@ -5,30 +5,6 @@
  * @version   1.0.0
  */
 
-.lb-document-module-alert .alert {
-    position: absolute;
-    z-index: 10;
-}
-
 .lb-document-module-tree #jstree_search_input{
     margin-bottom: 10px;
-}
-
-.hint {
-    color: #ccc;
-}
-
-.pointer {
-    cursor: pointer;
-}
-
-.hidden-block {
-    display: none;
-}
-
-.thumb {
-    height: 100px;
-    margin: 0px;
-    float: left;
-    margin-right: 10px;
 }
