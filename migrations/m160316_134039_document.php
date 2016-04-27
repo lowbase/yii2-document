@@ -6,8 +6,6 @@ use yii\db\Schema;
 
 class m160316_134039_document extends Migration
 {
-    const OPTIONS_FIELD = Template::OPTIONS_COUNT;
-
     public function up()
     {
         $tableOptions = null;
@@ -16,30 +14,18 @@ class m160316_134039_document extends Migration
         }
 
         //Таблица шаблонов template
-        
-        $fileds = [
+        $this->createTable('{{%lb_template}}', [
             'id' => Schema::TYPE_PK,
             'name' => Schema::TYPE_STRING . ' NOT NULL',
             'description' => Schema::TYPE_TEXT . ' NULL DEFAULT NULL',
             'path' => Schema::TYPE_STRING . ' NULL DEFAULT NULL',
-        ];
-
-        for ($i = 1; $i <= self::OPTIONS_FIELD; $i++) {
-            $fields['option_' . $i . '_name'] =  Schema::TYPE_STRING . ' NULL DEFAULT NULL';
-            $fields['option_' . $i . '_type'] = Schema::TYPE_SMALLINT .' NULL DEFAULT NULL';
-            $fields['option_' . $i . '_require'] = Schema::TYPE_SMALLINT .' NOT NULL DEFAULT 0';
-            $fields['option_' . $i . '_param'] = Schema::TYPE_STRING . ' NULL DEFAULT NULL';
-        }
-        
-        $this->createTable('{{%lb_template}}', $fileds , $tableOptions);
+        ] , $tableOptions);
 
         //Индексы и ключи таблицы шаблонов template
         $this->createIndex('template_name_index', '{{%lb_template}}', 'name');
 
         //Таблица документов document
-        $this->createTable('{{%lb_document}}', $fields , $tableOptions);
-
-        $fields = [
+        $this->createTable('{{%lb_document}}', [
             'id' => Schema::TYPE_PK,
             'name' => Schema::TYPE_STRING . ' NOT NULL',
             'alias' => Schema::TYPE_STRING . ' NOT NULL',
@@ -58,11 +44,7 @@ class m160316_134039_document extends Migration
             'created_by' =>Schema::TYPE_INTEGER. ' NOT NULL',
             'updated_by' =>Schema::TYPE_INTEGER. ' NULL DEFAULT NULL',
             'position' => Schema::TYPE_INTEGER. ' NULL DEFAULT NULL',
-        ];
-
-        for ($i = 1; $i <= self::OPTIONS_FIELD; $i++) {
-            $fields['option_' . $i] = Schema::TYPE_TEXT . ' NULL DEFAULT NULL';
-        }
+        ] , $tableOptions);
 
         //Индексы и ключи таблицы документов document
         $this->addForeignKey('document_parent_id_fk', '{{%lb_document}}', 'parent_id', '{{%lb_document}}', 'id', 'SET NULL', 'CASCADE');
@@ -70,8 +52,7 @@ class m160316_134039_document extends Migration
         $this->createIndex('document_name_index', '{{%lb_document}}', 'name');
         $this->createIndex('document_alias_index', '{{%lb_document}}', 'alias');
         $this->createIndex('document_status_index', '{{%lb_document}}', 'status');
-        $this->createIndex('document_position_index', '{{%lb_document}}', 'position');
-        
+
         //Таблица просмотров документов visit
         $this->createTable('{{%lb_visit}}', [
             'id' => Schema::TYPE_PK,
@@ -85,13 +66,24 @@ class m160316_134039_document extends Migration
         //Индексы и ключи таблицы таблицы просмотров документов visit
         $this->addForeignKey('visit_document_id_fk', '{{%lb_visit}}', 'document_id', '{{%lb_document}}', 'id', 'CASCADE', 'CASCADE');
 
+        //Таблица просмотров документов visit
+        $this->createTable('{{%lb_like}}', [
+            'id' => Schema::TYPE_PK,
+            'created_at' => Schema::TYPE_DATETIME . ' NOT NULL',
+            'document_id' => Schema::TYPE_INTEGER . ' NOT NULL',
+            'ip' => Schema::TYPE_STRING . '(20) NOT NULL',
+            'user_agent' => Schema::TYPE_TEXT . ' NULL DEFAULT NULL',
+            'user_id' => Schema::TYPE_INTEGER . ' NULL DEFAULT NULL',
+        ], $tableOptions);
+
+        //Индексы и ключи таблицы таблицы просмотров документов visit
+        $this->addForeignKey('like_document_id_fk', '{{%lb_like}}', 'document_id', '{{%lb_document}}', 'id', 'CASCADE', 'CASCADE');
     }
 
     public function down()
     {
+        $this->dropTable('{{%lb_like}}');
         $this->dropTable('{{%lb_visit}}');
-        $this->dropTable('{{%lb_field_value}}');
-        $this->dropTable('{{%lb_field}}');
         $this->dropTable('{{%lb_document}}');
         $this->dropTable('{{%lb_template}}');
     }
