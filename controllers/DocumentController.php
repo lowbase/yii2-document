@@ -8,22 +8,22 @@
  
 namespace lowbase\document\controllers;
 
-use lowbase\document\models\Image;
-use lowbase\document\models\Template;
 use Yii;
+use lowbase\document\models\Template;
 use lowbase\document\models\Document;
 use lowbase\document\models\DocumentSearch;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
-use yii\web\UploadedFile;
-
 //use yii\filters\AccessControl;
 
-
 /**
- * DocumentController implements the CRUD actions for Document model.
+ * Документы
+ * 
  * Абсолютные пути Views использованы, чтобы при наследовании
  * происходила связь с отображениями модуля родителя.
+ * 
+ * Class DocumentController
+ * @package lowbase\document\controllers
  */
 class DocumentController extends Controller
 {
@@ -33,7 +33,8 @@ class DocumentController extends Controller
     public function behaviors()
     {
         return [
-// Ограничение доступа к операциям, связанным с документами
+// Ограничение доступа к операциям, связанным с шаблонами
+// Активировать при подключении пользователей и разделений прав
 //            'access' => [
 //                'class' => AccessControl::className(),
 //                'only' => ['index', 'view', 'create', 'update', 'delete', 'multidelete', 'multiactive', 'multiblock', 'move', 'rmv'],
@@ -44,8 +45,8 @@ class DocumentController extends Controller
     }
 
     /**
-     * Менеджер документов.
-     * @return mixed
+     * Менеджер документов (список таблицей)
+     * @return string
      */
     public function actionIndex()
     {
@@ -59,9 +60,10 @@ class DocumentController extends Controller
     }
 
     /**
-     * Просмотр документа.
-     * @param integer $id
-     * @return mixed
+     * Просмотр карточки документа
+     * @param $id - ID документа
+     * @return string
+     * @throws NotFoundHttpException
      */
     public function actionView($id)
     {
@@ -71,20 +73,18 @@ class DocumentController extends Controller
     }
 
     /**
-     * Создание документа.
-     * @return mixed
+     * Создание документа
+     * @return string|\yii\web\Response
      */
     public function actionCreate()
     {
         $model = new Document();
+        // Устанавливаем родительский документ если пришло значение из $_GET
         $model->parent_id = Yii::$app->request->get('parent_id');
 
-        if ($model->load(Yii::$app->request->post())) {
-            $model->file = UploadedFile::getInstance($model, 'file');
-            if ($model->save()) {
-                Yii::$app->getSession()->setFlash('success', Yii::t('document', 'Новый документ создан.'));
-                return $this->redirect(['view', 'id' => $model->id]);
-            }
+        if ($model->load(Yii::$app->request->post()) && $model->save()) {
+            Yii::$app->getSession()->setFlash('success', Yii::t('document', 'Новый документ создан.'));
+            return $this->redirect(['view', 'id' => $model->id]);
         }
 
         return $this->render('@vendor/lowbase/yii2-document/views/document/create', [
@@ -93,19 +93,17 @@ class DocumentController extends Controller
     }
 
     /**
-     * Редактирование документа.
-     * @param integer $id
-     * @return mixed
+     * Редактирование документа
+     * @param $id - ID документа
+     * @return string|\yii\web\Response
+     * @throws NotFoundHttpException
      */
     public function actionUpdate($id)
     {
         $model = $this->findModel($id);
-        if ($model->load(Yii::$app->request->post())) {
-            $model->file = UploadedFile::getInstance($model, 'file');
-            if ($model->save()) {
-                Yii::$app->getSession()->setFlash('success', Yii::t('document', 'Документ отредактирован.'));
-                return $this->redirect(['view', 'id' => $model->id]);
-            }
+        if ($model->load(Yii::$app->request->post()) && $model->save()) {
+            Yii::$app->getSession()->setFlash('success', Yii::t('document', 'Документ отредактирован.'));
+            return $this->redirect(['view', 'id' => $model->id]);
         }
 
         return $this->render('@vendor/lowbase/yii2-document/views/document/update', [
@@ -114,14 +112,15 @@ class DocumentController extends Controller
     }
 
     /**
-     * Удаление документа.
-     * @param integer $id
-     * @return mixed
+     * Удаление документа
+     * @param $id - ID документа
+     * @return bool|\yii\web\Response
+     * @throws NotFoundHttpException
      */
     public function actionDelete($id)
     {
         $this->findModel($id)->delete();
-        if (Yii::$app->request->isAjax) {
+        if (Yii::$app->request->isAjax) { // Если пришел Ajax-запрос
             return true;
         } else {
             Yii::$app->getSession()->setFlash('success', Yii::t('document', 'Документ удален.'));
@@ -156,11 +155,9 @@ class DocumentController extends Controller
         $models = Yii::$app->request->post('keys');
         if ($models) {
             foreach ($models as $id) {
-                if ($id != Yii::$app->user->id) {
-                    $model = $this->findModel($id);
-                    $model->status = 1;
-                    $model->save();
-                }
+                $model = $this->findModel($id);
+                $model->status = Document::STATUS_ACTIVE;
+                $model->save();
             }
             Yii::$app->getSession()->setFlash('success', Yii::t('document', 'Документы опубликованы.'));
         }
@@ -177,11 +174,9 @@ class DocumentController extends Controller
         $models = Yii::$app->request->post('keys');
         if ($models) {
             foreach ($models as $id) {
-                if ($id != Yii::$app->user->id) {
-                    $model = $this->findModel($id);
-                    $model->status = 0;
-                    $model->save();
-                }
+                $model = $this->findModel($id);
+                $model->status = Document::STATUS_BLOCKED;
+                $model->save();
             }
             Yii::$app->getSession()->setFlash('success', Yii::t('document', 'Документы сняты с публикации.'));
         }
@@ -189,23 +184,29 @@ class DocumentController extends Controller
     }
 
     /**
-     * Перемещение докуемнта
+     * Перемещение документа
      * @return bool
      * @throws NotFoundHttpException
+     * @throws \Exception
      */
      public function actionMove()
     {
-        $data = Yii::$app->request->post();
+        // Получаем данные необходимые для перемещения
+        $data = Yii::$app->request->post(); 
         $model = $this->findModel($data['id']);
+        // Запоминаем прошлый родительский документ
         $old_parent_id = $model->parent_id;
+        // # - означает, что документ первого уровня (нет родителя)
         $model->parent_id = ($data['new_parent_id'] == '#') ? null : $data['new_parent_id'];
-
+        
+        // Если указан документ перед которым необходимо поместить текущий документ
         if ($data['new_prev_id'] && $data['new_prev_id'] !== 'false') {
             $prev_model = $this->findModel($data['new_prev_id']);
             $model->position = $prev_model->position+1;
         } else {
             $model->position = 0;
         }
+        // Пересчитываем позиции остальных документов текущего уровня
         $db = $model->getDb();
         $transaction = $db->beginTransaction();
         try {
@@ -218,18 +219,26 @@ class DocumentController extends Controller
         }
         $model->save();
 
+        // Пересматриваем пометку "Папка" если произошло изменение
+        // родительского документа
         if ($old_parent_id <> $model->parent_id) {
             if ($old_parent_id !== '#') {
+                // Проверяем необходимость снять пометки "Папка" 
+                // с прошлого родителя
                 Document::folder($old_parent_id);
             }
             if ($old_parent_id !== null) {
+                // Устанавлием значение "Папка" на нового родителя
+                // если не был установлен до этого
                 Document::folder($model->parent_id);
             }
         }
         return true;
     }
-     /**
-     * @param integer $id
+    
+    /**
+     * Поиск документа по ID
+     * @param integer $id - ID документа
      * @return Document the loaded model
      * @throws NotFoundHttpException if the model cannot be found
      */
@@ -241,65 +250,22 @@ class DocumentController extends Controller
             throw new NotFoundHttpException(Yii::t('document', 'Запрашиваемая страница не найдена.'));
         }
     }
-    
-        /**
-     * Отображение документа
-     * @param $alias
+
+    /**
+     * Публичное отображение документа
+     * @param $alias - Url-адрес документа
      * @return string
      * @throws NotFoundHttpException
      */
     public function actionShow($alias)
     {
+        // Отображаем только опубликованные документы
         $model = Document::find()->where(['alias' => $alias, 'status' => Document::STATUS_ACTIVE])->one();
         if ($model == null) {
             throw new NotFoundHttpException(Yii::t('document', 'Запрашиваемая страница не найдена.'));
         }
+        // Если задан шаблон отображения, то отображаем согласно нему, иначе стандартное отображение статьи
         $template = (isset($model->template) && $model->template->path) ? $model->template->path : '@vendor/lowbase/yii2-document/views/document/template/default';
         return $this->render($template, ['model' => $model]);
-    }
-
-    /**
-     * Отображение дополнительных полей
-     * Используется при имземении шаблона
-     * @return mixed
-     */
-    public function actionOptions()
-    {
-        $id = Yii::$app->request->post('id');
-        if ($id) {
-            $model = Document::findOne($id);
-        } else {
-            $model = new Document();
-        }
-
-        $model->template_id = Yii::$app->request->post('template_id');
-        $template = Template::findOne($model->template_id);
-        $empty_value = ($model->getOldAttribute('template_id') != $model->template_id) ? true : false;
-
-        return $this->renderAjax('_options', [
-            'model' => $model,
-            'template' => $template,
-            'empty_value' => $empty_value
-        ]);
-    }
-
-    /**
-     * Удаление изображений документа
-     * @param $id
-     * @return \yii\web\Response
-     */
-    public function actionRmv($id)
-    {
-        $model = Image::find()->where(['parent_id' => $id])->all();
-        if ($model) {
-            foreach ($model as $m) {
-                if (file_exists('/'.$m->path)) {
-                    unlink('/'.$m->path);
-                }
-                $m->delete();
-            }
-            Yii::$app->getSession()->setFlash('success', Yii::t('document', 'Изображения удалены.'));
-        }
-        return $this->redirect(['update', 'id' => $id]);
     }
 }
