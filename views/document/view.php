@@ -87,6 +87,16 @@ DocumentAsset::register($this);
             'position',
             'created_by',
             'updated_by',
+            [
+                'attribute' => Yii::t('document', 'Просмотры'),
+                'format' => 'raw',
+                'value' =>  $views,
+            ],
+            [
+                'attribute' => Yii::t('document', 'Лайки'),
+                'format' => 'raw',
+                'value' =>  $likes,
+            ],
         ],
     ]) ?>
 
