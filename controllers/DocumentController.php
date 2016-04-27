@@ -207,11 +207,17 @@ class DocumentController extends Controller
         // # - означает, что документ первого уровня (нет родителя)
         $model->parent_id = ($data['new_parent_id'] == '#') ? null : $data['new_parent_id'];
 
-        // Если указан документ перед которым необходимо поместить текущий документ
+        // Если указан документ после которого надо поместить документ
+
         if ($data['new_prev_id'] && $data['new_prev_id'] !== 'false') {
             $prev_model = $this->findModel($data['new_prev_id']);
             $model->position = $prev_model->position+1;
         } else {
+            $model->position = 0;
+        }
+        // Если указан документ перед которым надо поместить документ
+        if ($data['new_next_id'] && $data['new_next_id'] !== 'false' && (!$data['new_prev_id'] || $data['new_prev_id'] == 'false')) {
+            // Документов впереди на уровне нет
             $model->position = 0;
         }
         // Пересчитываем позиции остальных документов текущего уровня
@@ -219,7 +225,11 @@ class DocumentController extends Controller
         $transaction = $db->beginTransaction();
         try {
             $db->createCommand("set @i:=". $model->position)->execute();
-            $db->createCommand('UPDATE lb_document SET position=(@i:=@i+1) WHERE (parent_id='.$model->parent_id.' && `position`>='.$model->position.') ORDER BY position')->execute();
+            if ($model->parent_id) {
+                $db->createCommand('UPDATE lb_document SET position=(@i:=@i+1) WHERE (parent_id='.$model->parent_id.' && `position`>='.$model->position.') ORDER BY position')->execute();
+            } else {
+                $db->createCommand('UPDATE lb_document SET position=(@i:=@i+1) WHERE (parent_id IS NULL && `position`>='.$model->position.') ORDER BY position')->execute();
+            }
             $transaction->commit();
         } catch (\Exception $e) {
             $transaction->rollBack();
