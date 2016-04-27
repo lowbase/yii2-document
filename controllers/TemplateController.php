@@ -16,9 +16,13 @@ use yii\web\NotFoundHttpException;
 //use yii\filters\AccessControl;
 
 /**
- * TemplateController implements the CRUD actions for Template model.
+ * Шаблоны документов
+ * 
  * Абсолютные пути Views использованы, чтобы при наследовании
  * происходила связь с отображениями модуля родителя.
+ * 
+ * Class TemplateController
+ * @package lowbase\document\controllers
  */
 class TemplateController extends Controller
 {
@@ -26,6 +30,7 @@ class TemplateController extends Controller
     {
         return [
 // Ограничение доступа к операциям, связанным с шаблонами
+// Активировать при подключении пользователей и разделений прав
 //            'access' => [
 //                'class' => AccessControl::className(),
 //                'only' => ['index', 'view', 'create', 'update', 'delete', 'multidelete'],
@@ -36,8 +41,8 @@ class TemplateController extends Controller
     }
 
     /**
-     * Менеджер шаблонов
-     * @return mixed
+     * Менеджер шаблонов (список таблицей)
+     * @return string
      */
     public function actionIndex()
     {
@@ -51,9 +56,10 @@ class TemplateController extends Controller
     }
 
     /**
-     * Просмотр шаблона
-     * @param integer $id
-     * @return mixed
+     * Просмотр шаблона (карточка шаблона)
+     * @param $id - ID шаблона
+     * @return string
+     * @throws NotFoundHttpException
      */
     public function actionView($id)
     {
@@ -64,7 +70,7 @@ class TemplateController extends Controller
 
     /**
      * Создание шаблона
-     * @return mixed
+     * @return string|\yii\web\Response
      */
     public function actionCreate()
     {
@@ -82,8 +88,9 @@ class TemplateController extends Controller
 
     /**
      * Редактирование шаблона
-     * @param integer $id
-     * @return mixed
+     * @param $id - ID шаблона
+     * @return string|\yii\web\Response
+     * @throws NotFoundHttpException
      */
     public function actionUpdate($id)
     {
@@ -101,8 +108,9 @@ class TemplateController extends Controller
 
     /**
      * Удаление шаблона
-     * @param integer $id
-     * @return mixed
+     * @param $id - ID шаблона
+     * @return \yii\web\Response
+     * @throws NotFoundHttpException
      */
     public function actionDelete($id)
     {
@@ -130,6 +138,7 @@ class TemplateController extends Controller
     }
 
     /**
+     * Поиск модели шаблона по ID
      * @param integer $id
      * @return Template the loaded model
      * @throws NotFoundHttpException if the model cannot be found
