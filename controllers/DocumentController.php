@@ -18,10 +18,10 @@ use yii\web\NotFoundHttpException;
 
 /**
  * Документы
- * 
+ *
  * Абсолютные пути Views использованы, чтобы при наследовании
  * происходила связь с отображениями модуля родителя.
- * 
+ *
  * Class DocumentController
  * @package lowbase\document\controllers
  */
@@ -185,6 +185,7 @@ class DocumentController extends Controller
 
     /**
      * Перемещение документа
+     * Используется компонентом JSTree
      * @return bool
      * @throws NotFoundHttpException
      * @throws \Exception
@@ -192,13 +193,13 @@ class DocumentController extends Controller
      public function actionMove()
     {
         // Получаем данные необходимые для перемещения
-        $data = Yii::$app->request->post(); 
+        $data = Yii::$app->request->post();
         $model = $this->findModel($data['id']);
         // Запоминаем прошлый родительский документ
         $old_parent_id = $model->parent_id;
         // # - означает, что документ первого уровня (нет родителя)
         $model->parent_id = ($data['new_parent_id'] == '#') ? null : $data['new_parent_id'];
-        
+
         // Если указан документ перед которым необходимо поместить текущий документ
         if ($data['new_prev_id'] && $data['new_prev_id'] !== 'false') {
             $prev_model = $this->findModel($data['new_prev_id']);
@@ -223,7 +224,7 @@ class DocumentController extends Controller
         // родительского документа
         if ($old_parent_id <> $model->parent_id) {
             if ($old_parent_id !== '#') {
-                // Проверяем необходимость снять пометки "Папка" 
+                // Проверяем необходимость снять пометки "Папка"
                 // с прошлого родителя
                 Document::folder($old_parent_id);
             }
@@ -235,7 +236,7 @@ class DocumentController extends Controller
         }
         return true;
     }
-    
+
     /**
      * Поиск документа по ID
      * @param integer $id - ID документа
