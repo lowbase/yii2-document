@@ -8,6 +8,8 @@
  
 namespace lowbase\document\controllers;
 
+use lowbase\document\models\Like;
+use lowbase\document\models\Visit;
 use Yii;
 use lowbase\document\models\Template;
 use lowbase\document\models\Document;
@@ -270,5 +272,17 @@ class DocumentController extends Controller
         // Если задан шаблон отображения, то отображаем согласно нему, иначе стандартное отображение статьи
         $template = (isset($model->template) && $model->template->path) ? $model->template->path : '@vendor/lowbase/yii2-document/views/document/template/default';
         return $this->render($template, ['model' => $model]);
+    }
+
+    /**
+     * Лайк документа
+     * @param $id - ID документа
+     * Отображает количество лайков статьи
+     */
+    public function actionLike($id)
+    {
+        Like::check($id);
+        $likes = Like::getAll($id);
+        echo ($likes) ? $likes[0]->count : 0;
     }
 }
