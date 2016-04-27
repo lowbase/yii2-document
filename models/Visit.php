@@ -1,13 +1,12 @@
 <?php
 
-namespace lowbase\document\models;
+namespace app\models;
 
-use lowbase\document\models\Document;
 use Yii;
 use yii\behaviors\TimestampBehavior;
 
 /**
- * Просмотры статьи
+ * Лайки документов
  *
  * @property integer $id
  * @property string $created_at
@@ -18,12 +17,12 @@ use yii\behaviors\TimestampBehavior;
  *
  * @property LbDocument $document
  */
-class Visit extends \yii\db\ActiveRecord
+class Like extends \yii\db\ActiveRecord
 {
-    public $count;  // Количество просмотров
-
+    public $count;  // Количество лайков
+    
     /**
-     * Автозаполнение даты просмотра
+     * Автозаполнение даты лайка
      * документа
      * @return array
      */
@@ -44,7 +43,7 @@ class Visit extends \yii\db\ActiveRecord
      */
     public static function tableName()
     {
-        return 'lb_visit';
+        return 'lb_like';
     }
 
     /**
@@ -54,11 +53,12 @@ class Visit extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['document_id', 'ip'], 'required'],    // Обязательные поля для заполнения
+            [['document_id', 'ip'], 'required'],    // Обязательно для заполнения
             [['document_id', 'user_id', 'count'], 'integer'],   // Целочисленные значения
-            [['user_agent'], 'string'], // Текстовое значение
+            [['user_agent'], 'string'], // Текстовые значения
             [['ip'], 'string', 'max' => 20],    // Строка (максимум 20 символов)
             [['document_id'], 'exist', 'skipOnError' => true, 'targetClass' => Document::className(), 'targetAttribute' => ['document_id' => 'id']],
+
         ];
     }
 
@@ -79,32 +79,28 @@ class Visit extends \yii\db\ActiveRecord
     }
 
     /**
-     * Документ
      * @return \yii\db\ActiveQuery
      */
     public function getDocument()
     {
-        return $this->hasOne(LbDocument::className(), ['id' => 'document_id']);
+        return $this->hasOne(Document::className(), ['id' => 'document_id']);
     }
 
     /**
-     * Фиксирум просмотр документа
-     * Не более 1 раза с одного IP в день
-     * @param $document_id - ID документа
+     * Фиксируем посещение документа
+     * не более 1 раза с одного IP
+     * @param $post_id
      * @return bool
      */
     public static function check($document_id)
     {
         $ip = $_SERVER["REMOTE_ADDR"];
-        // Проверяем наличие просмотров за сегодня с этого IP
-        $model = Visit::find()->where('document_id=:document_id && ip=:ip && created_at>=:created_at', [
+        $model = Like::find()->where('document_id=:document_id && ip=:ip', [
             ':document_id' => $document_id,
-            ':ip' => $ip,
-            ':created_at' => date('Y-m-d'). ' 00:00:00',
+            ':ip' => $ip
         ])->count();
-        // Сохраняем запись
         if (!$model) {
-            $visit = new Visit();
+            $visit = new Like();
             $visit->document_id = $document_id;
             $visit->ip = $ip;
             $visit->user_id = (Yii::$app->user->isGuest) ? null : Yii::$app->user->id;
@@ -115,28 +111,25 @@ class Visit extends \yii\db\ActiveRecord
             return false;
         }
     }
-
     /**
-     * Получить просмотры документа/ов
+     * Получить Лайки документа/ов
      * при shedule = flase - общее количество за все время
      * при shedule = true - количество просмотров, сгруппированные по дням
-     * 
-     * @param null $document_ids - ID документа (-ов)
-     * @param bool $shedule - включить расписание просмотров?
+     * @param null $post_ids
+     * @param bool $shedule
      * @return array|\yii\db\ActiveRecord[] - возвращает только дату, id документа, кол-во просмотров
      */
     public static function getAll($document_ids = null, $shedule = false)
     {
-        $table = Visit::tableName();
-        $group_by = ($shedule) ? 'DATE(created_at)' : 'document_id';
+        $table = Like::tableName();
+        $group_by = ($shedule) ? 'DATE(created_at)' : 'post_id';
         if ($document_ids) {
-            $ids = implode(',', $document_ids);
-            $sql = 'SELECT date(created_at) as created_at , document_id, count(document_id) as count FROM ' . $table . ' where document_id IN ('.$ids.') GROUP BY ' . $group_by;
+            $ids = (is_array($document_ids)) ? implode(',', $document_ids) : $document_ids;
+            $sql = 'SELECT date(created_at) as created_at , post_id, count(post_id) as count FROM `' . $table . '` where post_id IN ('.$ids.') GROUP BY ' . $group_by;
         } else {
-            $sql = 'SELECT date(created_at) as created_at , document_id, count(document_id) as count FROM ' . $table . ' GROUP BY ' . $group_by;
+            $sql = 'SELECT date(created_at) as created_at , post_id, count(post_id) as count FROM `' . $table . '` GROUP BY ' . $group_by;
         }
-        $model = Visit::findBySql($sql)->all();
-
+        $model = Like::findBySql($sql)->all();
         return $model;
     }
 }
