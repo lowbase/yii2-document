@@ -65,7 +65,7 @@ class TemplateSearch extends Template
             $query->where('0=1');
             return $dataProvider;
         }
-        
+
         // Фильтрация
         $query->andFilterWhere([
             'id' => $this->id,
