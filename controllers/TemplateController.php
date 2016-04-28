@@ -79,7 +79,7 @@ class TemplateController extends Controller
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
             Yii::$app->getSession()->setFlash('success', Yii::t('document', 'Новый шаблон создан.'));
-            return $this->redirect(['view', 'id' => $model->id]);
+            return $this->redirect(['update', 'id' => $model->id]);
         } else {
             return $this->render('@vendor/lowbase/yii2-document/views/template/create', [
                 'model' => $model,
