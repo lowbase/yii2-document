@@ -5,7 +5,8 @@
  * @copyright Copyright &copy; Yuri Shekhovtsov, lowbase.ru, 2015 - 2016
  * @version   1.0.0
  */
- 
+
+use lowbase\document\models\Field;
 use yii\helpers\Html;
 use yii\widgets\DetailView;
 use lowbase\document\DocumentAsset;
@@ -42,6 +43,14 @@ DocumentAsset::register($this);
         ]) ?>
     </p>
 
+    <?php
+    $html = '<ul>';
+    foreach ($model->fields as $field) {
+        $html .= '<li>' . Html::a($field->name, ['field/update', 'id' => $field->id]) . ' (' . Field::getTypes()[$field->type].')</li>';
+    }
+    $html .= '</ul>';
+    ?>
+
     <?= DetailView::widget([
         'model' => $model,
         'attributes' => [
@@ -49,6 +58,11 @@ DocumentAsset::register($this);
             'name',
             'description:ntext',
             'path',
+            [
+                'attribute' => Yii::t('document', 'Дополнительные поля'),
+                'format' => 'raw',
+                'value' => $html,
+            ],
         ],
     ]) ?>
 
