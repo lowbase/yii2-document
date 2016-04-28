@@ -12,7 +12,7 @@ use yii\helpers\Html;
 /* @var $model app\modules\document\models\Field */
 
 $this->title = Yii::t('document', 'Редактирование поля');
-$this->params['breadcrumbs'][] = ['label' => Yii::t('document', 'Шаблоны'), 'url' => ['index']];
+$this->params['breadcrumbs'][] = ['label' => Yii::t('document', 'Шаблоны'), 'url' => ['template/index']];
 $this->params['breadcrumbs'][] = ['label' => $model->template->name, 'url' => ['template/view', 'id' => $model->template_id]];
 $this->params['breadcrumbs'][] = Yii::t('document', 'Редактирование поля');
 ?>
