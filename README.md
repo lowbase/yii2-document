@@ -45,8 +45,8 @@ php composer.phar require --prefer-dist lowbase/yii2-document "*"
        'like/<id:\d+>' => 'document/document/like'
         //Отображение документов
        '<alias>' => 'document/document/show'
-       //Файловый менеджер
-        'elfinder/<action(connect|manager)>' => 'elfinder/<action(connect|manager)>',
+       //Взаимодействия с дополнительными полями шаблонов
+       'admin/field/<action:(create|update|delete|multidelete)>' => 'document/field/<action>',
    ],
 ],
 
