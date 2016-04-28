@@ -53,6 +53,20 @@ class m160316_134039_document extends Migration
         $this->createIndex('document_alias_index', '{{%lb_document}}', 'alias');
         $this->createIndex('document_status_index', '{{%lb_document}}', 'status');
 
+        //Дополнительные поля
+        $this->createTable('{{%lb_field}}', [
+            'id' => Schema::TYPE_PK,
+            'name' => Schema::TYPE_STRING . ' NOT NULL',
+            'template_id' => Schema::TYPE_INTEGER . ' NOT NULL',
+            'type' => Schema::TYPE_INTEGER . ' NOT NULL',
+            'param' => Schema::TYPE_STRING . ' NULL DEFAULT NULL',
+            'min' => Schema::TYPE_INTEGER . ' NOT NULL DEFAULT 0',
+            'max' => Schema::TYPE_INTEGER . ' NOT NULL DEFAULT 0',
+        ], $tableOptions);
+
+        //Индексы и ключи таблицы полей field
+        $this->addForeignKey('field_template_id_fk', '{{%lb_field}}', 'template_id', '{{%lb_template}}', 'id', 'CASCADE', 'CASCADE');
+
         //Таблица просмотров документов visit
         $this->createTable('{{%lb_visit}}', [
             'id' => Schema::TYPE_PK,
@@ -84,6 +98,7 @@ class m160316_134039_document extends Migration
     {
         $this->dropTable('{{%lb_like}}');
         $this->dropTable('{{%lb_visit}}');
+        $this->dropTable('{{%lb_field}}');
         $this->dropTable('{{%lb_document}}');
         $this->dropTable('{{%lb_template}}');
     }
