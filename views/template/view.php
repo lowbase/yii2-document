@@ -44,11 +44,14 @@ DocumentAsset::register($this);
     </p>
 
     <?php
-    $html = '<ul>';
-    foreach ($model->fields as $field) {
-        $html .= '<li>' . Html::a($field->name, ['field/update', 'id' => $field->id]) . ' (' . Field::getTypes()[$field->type].')</li>';
+    $html = null;
+    if ($model->fields) {
+        $html .= '<ul>';
+        foreach ($model->fields as $field) {
+            $html .= '<li>' . Html::a($field->name, ['field/update', 'id' => $field->id]) . ' (' . Field::getTypes()[$field->type].')</li>';
+        }
+        $html .= '</ul>';
     }
-    $html .= '</ul>';
     ?>
 
     <?= DetailView::widget([
