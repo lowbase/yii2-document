@@ -20,6 +20,8 @@ use app\modules\document\models\Field;
  */
 class FieldSearch extends Field
 {
+    const COUNT = 50; // количество полей на одной странице
+
     /**
      * Правила валидации
      * @return array
@@ -52,6 +54,9 @@ class FieldSearch extends Field
 
         $dataProvider = new ActiveDataProvider([
             'query' => $query,
+            'pagination' => [
+                'pageSize'=> $this::COUNT,
+            ],
         ]);
 
         $this->load($params);
