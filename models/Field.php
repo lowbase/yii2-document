@@ -25,6 +25,11 @@ use Yii;
  */
 class Field extends \yii\db\ActiveRecord
 {
+    const NUMERIC_TABLE = 1;    // Таблица числовых значений
+    const STRING_TABLE = 2;     // Таблица строковых значений
+    const TEXT_TABLE = 3;       // Таблица текстовых значений
+    const DATE_TABLE = 4;       // Таблица с датами
+
     /**
      * Наименование таблицы
      * @return string
@@ -51,6 +56,22 @@ class Field extends \yii\db\ActiveRecord
             8 => 'Файл (выбор с сервера)',
             9 => 'Регулярное выражение',
             10 => 'Дата'
+        ];
+    }
+
+    /**
+     * Массив, показывающий какие типы данных
+     * дополнительных полей в какой из 4 таблиц
+     * хранится
+     * @return array
+     */
+    public static function getTypesOfTable()
+    {
+        return [
+            self::NUMERIC_TABLE => [1,2,3,6,7],
+            self::STRING_TABLE => [4,8,9],
+            self::TEXT_TABLE => [5],
+            self::DATE_TABLE => [4],
         ];
     }
 
