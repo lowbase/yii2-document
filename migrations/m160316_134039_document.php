@@ -67,6 +67,65 @@ class m160316_134039_document extends Migration
         //Индексы и ключи таблицы полей field
         $this->addForeignKey('field_template_id_fk', '{{%lb_field}}', 'template_id', '{{%lb_template}}', 'id', 'CASCADE', 'CASCADE');
 
+        //Числовые значения дополнительных полей
+        $this->createTable('{{%lb_value_numeric}}', [
+            'id' => Schema::TYPE_PK,
+            'document_id' => Schema::TYPE_INTEGER . ' NOT NULL',
+            'field_id' => Schema::TYPE_INTEGER . ' NOT NULL',
+            'type' => Schema::TYPE_INTEGER . ' NOT NULL',
+            'position' => Schema::TYPE_INTEGER . ' NULL DEFAULT NULL',
+            'value' => Schema::TYPE_FLOAT . ' NULL DEFAULT NULL',
+        ], $tableOptions);
+
+        //Индексы и ключи таблицы числовых значений дополнительных полей
+        $this->addForeignKey('value_numeric_document_id_fk', '{{%lb_value_numeric}}', 'document_id', '{{%lb_document}}', 'id', 'NO ACTION', 'CASCADE');
+        $this->addForeignKey('value_numeric_field_id_fk', '{{%lb_value_numeric}}', 'field_id', '{{%lb_field}}', 'id', 'NO ACTION', 'CASCADE');
+        $this->createIndex('value_numeric_name_index', '{{%lb_value_numeric}}', 'value');
+
+        //Строковые значения дополнительных полей
+        $this->createTable('{{%lb_value_string}}', [
+            'id' => Schema::TYPE_PK,
+            'document_id' => Schema::TYPE_INTEGER . ' NOT NULL',
+            'field_id' => Schema::TYPE_INTEGER . ' NOT NULL',
+            'type' => Schema::TYPE_INTEGER . ' NOT NULL',
+            'position' => Schema::TYPE_INTEGER . ' NULL DEFAULT NULL',
+            'value' => Schema::TYPE_STRING . ' NULL DEFAULT NULL',
+        ], $tableOptions);
+
+        //Индексы и ключи таблицы строковых значений дополнительных полей
+        $this->addForeignKey('value_string_document_id_fk', '{{%lb_value_string}}', 'document_id', '{{%lb_document}}', 'id', 'NO ACTION', 'CASCADE');
+        $this->addForeignKey('value_string_field_id_fk', '{{%lb_value_string}}', 'field_id', '{{%lb_field}}', 'id', 'NO ACTION', 'CASCADE');
+        $this->createIndex('value_string_name_index', '{{%lb_value_string}}', 'value');
+
+        //Текстовые значения дополнительных полей
+        $this->createTable('{{%lb_value_text}}', [
+            'id' => Schema::TYPE_PK,
+            'document_id' => Schema::TYPE_INTEGER . ' NOT NULL',
+            'field_id' => Schema::TYPE_INTEGER . ' NOT NULL',
+            'type' => Schema::TYPE_INTEGER . ' NOT NULL',
+            'position' => Schema::TYPE_INTEGER . ' NULL DEFAULT NULL',
+            'value' => Schema::TYPE_TEXT . ' NULL DEFAULT NULL',
+        ], $tableOptions);
+
+        //Индексы и ключи таблицы текстовых значений дополнительных полей
+        $this->addForeignKey('value_text_document_id_fk', '{{%lb_value_text}}', 'document_id', '{{%lb_document}}', 'id', 'NO ACTION', 'CASCADE');
+        $this->addForeignKey('value_text_field_id_fk', '{{%lb_value_text}}', 'field_id', '{{%lb_field}}', 'id', 'NO ACTION', 'CASCADE');
+
+        //Значения дат дополнительных полей
+        $this->createTable('{{%lb_value_date}}', [
+            'id' => Schema::TYPE_PK,
+            'document_id' => Schema::TYPE_INTEGER . ' NOT NULL',
+            'field_id' => Schema::TYPE_INTEGER . ' NOT NULL',
+            'type' => Schema::TYPE_INTEGER . ' NOT NULL',
+            'position' => Schema::TYPE_INTEGER . ' NULL DEFAULT NULL',
+            'value' => Schema::TYPE_DATETIME . ' NULL DEFAULT NULL',
+        ], $tableOptions);
+
+        //Индексы и ключи таблицы значений дат дополнительных полей
+        $this->addForeignKey('value_date_document_id_fk', '{{%lb_value_date}}', 'document_id', '{{%lb_document}}', 'id', 'NO ACTION', 'CASCADE');
+        $this->addForeignKey('value_date_field_id_fk', '{{%lb_value_date}}', 'field_id', '{{%lb_field}}', 'id', 'NO ACTION', 'CASCADE');
+        $this->createIndex('value_date_name_index', '{{%lb_value_date}}', 'value');
+
         //Таблица просмотров документов visit
         $this->createTable('{{%lb_visit}}', [
             'id' => Schema::TYPE_PK,
@@ -98,6 +157,10 @@ class m160316_134039_document extends Migration
     {
         $this->dropTable('{{%lb_like}}');
         $this->dropTable('{{%lb_visit}}');
+        $this->dropTable('{{%lb_value_numeric}}');
+        $this->dropTable('{{%lb_value_string}}');
+        $this->dropTable('{{%lb_value_text}}');
+        $this->dropTable('{{%lb_value_date}}');
         $this->dropTable('{{%lb_field}}');
         $this->dropTable('{{%lb_document}}');
         $this->dropTable('{{%lb_template}}');
