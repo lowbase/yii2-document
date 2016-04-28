@@ -50,7 +50,7 @@ class FieldController extends Controller
             Yii::$app->getSession()->setFlash('success', Yii::t('document', 'Новый поле создано.'));
             return $this->redirect(['template/update', 'id' => $model->template_id]);
         } else {
-            return $this->render('create', [
+            return $this->render('@vendor/lowbase/yii2-document/views/field/create', [
                 'model' => $model,
                 'template' => $template,
             ]);
@@ -71,7 +71,7 @@ class FieldController extends Controller
             Yii::$app->getSession()->setFlash('success', Yii::t('document', 'Поле отредактировано.'));
             return $this->redirect(['template/update', 'id' => $model->template_id]);
         } else {
-            return $this->render('update', [
+            return $this->render('@vendor/lowbase/yii2-document/views/field/update', [
                 'model' => $model,
             ]);
         }
