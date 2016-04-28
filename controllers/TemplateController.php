@@ -8,6 +8,7 @@
  
 namespace lowbase\document\controllers;
 
+use lowbase\document\models\FieldSearch;
 use Yii;
 use lowbase\document\models\Template;
 use lowbase\document\models\TemplateSearch;
@@ -17,10 +18,10 @@ use yii\web\NotFoundHttpException;
 
 /**
  * Шаблоны документов
- * 
+ *
  * Абсолютные пути Views использованы, чтобы при наследовании
  * происходила связь с отображениями модуля родителя.
- * 
+ *
  * Class TemplateController
  * @package lowbase\document\controllers
  */
@@ -95,6 +96,10 @@ class TemplateController extends Controller
     public function actionUpdate($id)
     {
         $model = $this->findModel($id);
+        $searchModel = new FieldSearch();
+        $searchModel->template_id = $model->id;
+        $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
+
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
             Yii::$app->getSession()->setFlash('success', Yii::t('document', 'Шаблон отредактирован.'));
@@ -102,6 +107,8 @@ class TemplateController extends Controller
         } else {
             return $this->render('@vendor/lowbase/yii2-document/views/template/update', [
                 'model' => $model,
+                'searchModel' => $searchModel,
+                'dataProvider' => $dataProvider,
             ]);
         }
     }
