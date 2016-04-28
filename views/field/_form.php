@@ -34,11 +34,12 @@ use yii\widgets\ActiveForm;
                             'method' => 'post',
                         ],
                     ]);
-                }
-                ?>
-                <?= Html::a('<i class="glyphicon glyphicon-menu-left"></i> '.Yii::t('document', 'Отмена'), ['index'], [
-                    'class' => 'btn btn-default',
-                ]) ?>
+                echo " " . Html::a('<i class="glyphicon glyphicon-menu-left"></i> '.Yii::t('document', 'Отмена'), ['template/update', 'id' => $model->template_id], [
+                    'class' => 'btn btn-default']);
+                } else {
+                    echo Html::a('<i class="glyphicon glyphicon-menu-left"></i> '.Yii::t('document', 'Отмена'), ['template/update', 'id' => $template->id], [
+                        'class' => 'btn btn-default']);
+                } ?>
             </p>
         </div>
     </div>
