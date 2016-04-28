@@ -35,6 +35,26 @@ $gridColumns = [
     'max',
     [
         'template' => '{update} {delete}',
+        'buttons' => [
+            'update' => function ($url, $model, $key) {
+                $options = [
+                    'title' => Yii::t('yii', 'Update'),
+                    'aria-label' => Yii::t('yii', 'Update'),
+                    'data-pjax' => '0',
+                ];
+                return Html::a('<span class="glyphicon glyphicon-pencil"></span>', [
+                    'field/update', 'id' => $key], $options);
+            },
+            'delete' => function ($url, $model, $key) {
+                $options = [
+                    'title' => Yii::t('yii', 'Delete'),
+                    'aria-label' => Yii::t('yii', 'Delete'),
+                    'data-confirm' => Yii::t('yii', 'Are you sure you want to delete this item?'),
+                    'data-method' => 'post'
+                ];
+                return Html::a('<span class="glyphicon glyphicon-trash"></span>', ['field/delete', 'id' => $key], $options);
+            }
+        ],
         'class'=>'kartik\grid\ActionColumn',
     ],
     [
