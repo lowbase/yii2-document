@@ -12,7 +12,7 @@ use Yii;
 
 /**
  * Шаблоны документов
- * Используются для применения макетов 
+ * Используются для применения макетов
  * отображения данных, а также закрепления
  * за документом дополнительных полей
  *
@@ -45,7 +45,7 @@ class Template extends \yii\db\ActiveRecord
             [['name'], 'required'], // Обязательно для заполнения
             [['name'], 'unique'],   // Уникальное значение
             [['description'], 'string'],    // Текстовое поле
-            [['path'], 'pathValidate', 'skipOnEmpty' => false], // Проверка на существование файла шаблона         
+            [['path'], 'pathValidate', 'skipOnEmpty' => false], // Проверка на существование файла шаблона
             [['name', 'path'], 'string', 'max' => 255], // Строковое значение (максимум 255 символов)
             [['name', 'description', 'path'], 'filter', 'filter' => 'trim'],    // Обрезаем строки по краям
             [['path', 'description'], 'default', 'value' => null],  // По умолчанию = null
@@ -70,9 +70,18 @@ class Template extends \yii\db\ActiveRecord
      * Документы с текущим шаблоном
      * @return \yii\db\ActiveQuery
      */
-    public function getLbDocuments()
+    public function getDocuments()
     {
         return $this->hasMany(Document::className(), ['template_id' => 'id']);
+    }
+
+    /**
+     * Поля шаблона
+     * @return \yii\db\ActiveQuery
+     */
+    public function getFields()
+    {
+        return $this->hasMany(Field::className(), ['template_id' => 'id']);
     }
 
     /**
@@ -102,7 +111,7 @@ class Template extends \yii\db\ActiveRecord
                 $templates[$m->id] = $m->name;
             }
         }
-        
+
         return $templates;
     }
 }
