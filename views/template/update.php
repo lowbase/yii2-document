@@ -32,4 +32,5 @@ DocumentAsset::register($this);
         'model' => $model,
     ]) ?>
 
+    <?= $this->render('_fields', ['searchModel' => $searchModel, 'dataProvider' => $dataProvider]); ?>
 </div>
