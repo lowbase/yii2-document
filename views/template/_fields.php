@@ -9,6 +9,7 @@
 use kartik\grid\GridView;
 use lowbase\document\models\Field;
 use yii\helpers\Html;
+use yii\helpers\Url;
 
 $gridColumns = [
     [
@@ -71,4 +72,20 @@ echo GridView::widget([
     'hover' => true,
     'responsive' => true,
 ]);
+?>
+
+<?php
+$this->registerJs('
+            $(".delete-all").click(function(){
+            var keys = $(".grid-view").yiiGridView("getSelectedRows");
+            $.ajax({
+                url: "' . Url::to(['field/multidelete']) . '",
+                type:"POST",
+                data:{keys: keys},
+                success: function(data){
+                    location.reload();
+                }
+                });
+            });
+        ');
 ?>
