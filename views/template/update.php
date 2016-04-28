@@ -5,7 +5,7 @@
  * @copyright Copyright &copy; Yuri Shekhovtsov, lowbase.ru, 2015 - 2016
  * @version   1.0.0
  */
- 
+
 use yii\helpers\Html;
 use lowbase\document\DocumentAsset;
 
@@ -32,5 +32,9 @@ DocumentAsset::register($this);
         'model' => $model,
     ]) ?>
 
-    <?= $this->render('_fields', ['searchModel' => $searchModel, 'dataProvider' => $dataProvider]); ?>
+    <?= $this->render('_fields', [
+        'model' => $model,
+        'searchModel' => $searchModel,
+        'dataProvider' => $dataProvider
+    ]); ?>
 </div>
