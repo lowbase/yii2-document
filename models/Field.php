@@ -67,7 +67,7 @@ class Field extends \yii\db\ActiveRecord
             [['template_id'], 'exist', 'skipOnError' => true, 'targetClass' => Template::className(), 'targetAttribute' => ['template_id' => 'id']],
             [['name', 'param'], 'filter', 'filter' => 'trim'],    // Обрезаем строки по краям
             [['param'], 'default', 'value' => null],   // По умолчанию = null
-            [['min', 'max'], 'default', 'value' => 1],   // По умолчанию = 1
+            [['min', 'max'], 'default', 'value' => 0],   // По умолчанию = 1
         ];
     }
 
