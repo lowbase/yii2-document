@@ -39,7 +39,7 @@ class DocumentController extends Controller
 // Активировать при подключении пользователей и разделений прав
 //            'access' => [
 //                'class' => AccessControl::className(),
-//                'only' => ['index', 'view', 'create', 'update', 'delete', 'multidelete', 'multiactive', 'multiblock', 'move', 'rmv'],
+//                'only' => ['index', 'view', 'create', 'update', 'delete', 'multidelete', 'multiactive', 'multiblock', 'move', 'show', 'like', 'change'],
 //                'rules' => [
 //                ],
 //            ],
@@ -88,6 +88,8 @@ class DocumentController extends Controller
         $model = new Document();
         // Устанавливаем родительский документ если пришло значение из $_GET
         $model->parent_id = Yii::$app->request->get('parent_id');
+        // Заполняем необходимые для заполнения поля
+        $model->fillFields();
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
             Yii::$app->getSession()->setFlash('success', Yii::t('document', 'Новый документ создан.'));
@@ -108,6 +110,9 @@ class DocumentController extends Controller
     public function actionUpdate($id)
     {
         $model = $this->findModel($id);
+        // Заполняем необходимые для заполнения поля
+        $model->fillFields();
+//        exit(print_r($model->fields));
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
             Yii::$app->getSession()->setFlash('success', Yii::t('document', 'Документ отредактирован.'));
             return $this->redirect(['view', 'id' => $model->id]);
@@ -304,5 +309,20 @@ class DocumentController extends Controller
         Like::check($id);
         $likes = Like::getAll($id);
         echo ($likes) ? $likes[0]->count : 0;
+    }
+
+    /**
+     * Изменение шаблона докуменат
+     */
+    public function actionChange()
+    {
+        $id = Yii::$app->request->post('id');
+        $model = ($id) ? Document::findOne($id) : new Document();
+        $model->template_id = Yii::$app->request->post('template_id');
+        $model->fillFields();   // Заполняем поля согласно новому шаблону
+
+        return $this->renderAjax('_fields', [
+            'model' => $model,
+        ]);
     }
 }
