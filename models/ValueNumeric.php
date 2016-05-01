@@ -1,14 +1,9 @@
 <?php
-/**
- * @package   yii2-document
- * @author    Yuri Shekhovtsov <shekhovtsovy@yandex.ru>
- * @copyright Copyright &copy; Yuri Shekhovtsov, lowbase.ru, 2015 - 2016
- * @version   1.0.0
- */
- 
+
 namespace lowbase\document\models;
 
 use Yii;
+use yii\validators\Validator;
 
 /**
  * Числовые значения дополнительных полей документа
@@ -35,6 +30,20 @@ class ValueNumeric extends \yii\db\ActiveRecord
     }
 
     /**
+     * Типы дополнительных полей
+     * @return array
+     */
+    public static function getTypes()
+    {
+        return [
+            1 => 'Целое число',
+            2 => 'Число',
+            3 => 'Флажок',
+            6 => 'Список (дочерние документы)',
+        ];
+    }
+
+    /**
      * Правила валидации
      * @return array
      */
@@ -43,7 +52,7 @@ class ValueNumeric extends \yii\db\ActiveRecord
         return [
             [['document_id', 'field_id', 'type'], 'required'],  // Обязательные для заполнения
             [['document_id', 'field_id', 'type', 'position'], 'integer'],   // Целочисленные значения
-            [['value'], 'number'],  // Числовое значение
+            [['value'], 'safe'], // Валидация значения
             [['field_id'], 'exist', 'skipOnError' => true, 'targetClass' => Field::className(), 'targetAttribute' => ['field_id' => 'id']],
             [['document_id'], 'exist', 'skipOnError' => true, 'targetClass' => Document::className(), 'targetAttribute' => ['document_id' => 'id']],
             [['position', 'value'], 'default', 'value' => null],  // По умолчанию = null
@@ -82,5 +91,27 @@ class ValueNumeric extends \yii\db\ActiveRecord
     public function getDocument()
     {
         return $this->hasOne(Document::className(), ['id' => 'document_id']);
+    }
+
+    /**
+     * Добавляем дополнительные валидаторы
+     * в зависимости от типа записи
+     */
+    public function beforeValidate()
+    {
+        switch($this->type) {
+            case 1: // Целое число
+            case 3: // Флажок
+                $this->validators[] = Validator::createValidator('integer', $this, 'value');
+                break;
+            case 2: // Число
+                $this->validators[] = Validator::createValidator('double', $this, 'value');
+                break;
+            case 6: // Список (дочерние документы)
+                $this->validators[] = Validator::createValidator('integer', $this, 'value');
+            break;
+        }
+
+        return true;
     }
 }
