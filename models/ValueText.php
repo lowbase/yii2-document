@@ -1,14 +1,9 @@
 <?php
-/**
- * @package   yii2-document
- * @author    Yuri Shekhovtsov <shekhovtsovy@yandex.ru>
- * @copyright Copyright &copy; Yuri Shekhovtsov, lowbase.ru, 2015 - 2016
- * @version   1.0.0
- */
- 
+
 namespace lowbase\document\models;
 
 use Yii;
+use yii\validators\Validator;
 
 /**
  * Текстовые значения дополнительных полей документов
@@ -35,6 +30,17 @@ class ValueText extends \yii\db\ActiveRecord
     }
 
     /**
+     * Типы дополнительных полей
+     * @return array
+     */
+    public static function getTypes()
+    {
+        return [
+            5 => 'Текст',
+        ];
+    }
+
+    /**
      * Правила валидации
      * @return array
      */
@@ -43,9 +49,9 @@ class ValueText extends \yii\db\ActiveRecord
         return [
             [['document_id', 'field_id', 'type'], 'required'],  // Обязательно для заполнения
             [['document_id', 'field_id', 'type', 'position'], 'integer'],   // Целочисленные значения
-            [['value'], 'string'],  // Текстовые значения
-            [['field_id'], 'exist', 'skipOnError' => true, 'targetClass' => LbField::className(), 'targetAttribute' => ['field_id' => 'id']],
-            [['document_id'], 'exist', 'skipOnError' => true, 'targetClass' => LbDocument::className(), 'targetAttribute' => ['document_id' => 'id']],
+            [['value'], 'safe'], // Валидация значения
+            [['field_id'], 'exist', 'skipOnError' => true, 'targetClass' => Field::className(), 'targetAttribute' => ['field_id' => 'id']],
+            [['document_id'], 'exist', 'skipOnError' => true, 'targetClass' => Document::className(), 'targetAttribute' => ['document_id' => 'id']],
             [['position', 'value'], 'default', 'value' => null],  // По умолчанию = null
         ];
     }
@@ -82,5 +88,20 @@ class ValueText extends \yii\db\ActiveRecord
     public function getDocument()
     {
         return $this->hasOne(Document::className(), ['id' => 'document_id']);
+    }
+
+    /**
+     * Добавляем дополнительные валидаторы
+     * в зависимости от типа записи
+     */
+    public function beforeValidate()
+    {
+        switch($this->type) {
+            case 5: // Текст
+                $this->validators[] = Validator::createValidator('string', $this, 'value');
+                break;
+        }
+
+        return true;
     }
 }
