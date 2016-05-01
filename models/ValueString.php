@@ -1,14 +1,9 @@
 <?php
-/**
- * @package   yii2-document
- * @author    Yuri Shekhovtsov <shekhovtsovy@yandex.ru>
- * @copyright Copyright &copy; Yuri Shekhovtsov, lowbase.ru, 2015 - 2016
- * @version   1.0.0
- */
- 
+
 namespace lowbase\document\models;
 
 use Yii;
+use yii\validators\Validator;
 
 /**
  * Строковые значения дополнительных полей документа
@@ -35,6 +30,19 @@ class ValueString extends \yii\db\ActiveRecord
     }
 
     /**
+     * Типы дополнительных полей
+     * @return array
+     */
+    public static function getTypes()
+    {
+        return [
+            4 => 'Строка',
+            8 => 'Файл (выбор с сервера)',
+            9 => 'Регулярное выражение'
+        ];
+    }
+
+    /**
      * Правила валидации
      * @return array
      */
@@ -43,7 +51,7 @@ class ValueString extends \yii\db\ActiveRecord
         return [
             [['document_id', 'field_id', 'type'], 'required'],  // Обязательно для заполнения
             [['document_id', 'field_id', 'type', 'position'], 'integer'],   // Целочисленные значения
-            [['value'], 'string', 'max' => 255],    // Строка (максимум 255 символов)
+            [['value'], 'safe'], // Валидация значения
             [['field_id'], 'exist', 'skipOnError' => true, 'targetClass' => Field::className(), 'targetAttribute' => ['field_id' => 'id']],
             [['document_id'], 'exist', 'skipOnError' => true, 'targetClass' => Document::className(), 'targetAttribute' => ['document_id' => 'id']],
             [['position', 'value'], 'default', 'value' => null],  // По умолчанию = null
@@ -82,5 +90,28 @@ class ValueString extends \yii\db\ActiveRecord
     public function getDocument()
     {
         return $this->hasOne(Document::className(), ['id' => 'document_id']);
+    }
+
+    /**
+     * Добавляем дополнительные валидаторы
+     * в зависимости от типа записи
+     */
+    public function beforeValidate()
+    {
+        switch($this->type) {
+            case 4: // Строка
+            case 8: // Файл (выбор с сервера)
+                $this->validators[] = Validator::createValidator('string', $this, 'value');
+                break;
+            case 9: // Регулярное выражение
+                $field = Field::findOne($this->field_id);
+                    if ($field) {
+                        $pattern = ($field->param) ? $field->param : '\w';
+                        $this->validators[] = Validator::createValidator('match', $this, 'value', ['pattern' => $pattern]);
+                    }
+                break;
+        }
+
+        return true;
     }
 }
