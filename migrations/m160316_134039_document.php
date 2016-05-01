@@ -74,7 +74,7 @@ class m160316_134039_document extends Migration
             'field_id' => Schema::TYPE_INTEGER . ' NOT NULL',
             'type' => Schema::TYPE_INTEGER . ' NOT NULL',
             'position' => Schema::TYPE_INTEGER . ' NULL DEFAULT NULL',
-            'value' => Schema::TYPE_FLOAT . ' NULL DEFAULT NULL',
+            'value' => Schema::TYPE_DOUBLE . ' NULL DEFAULT NULL',
         ], $tableOptions);
 
         //Индексы и ключи таблицы числовых значений дополнительных полей
