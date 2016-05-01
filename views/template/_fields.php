@@ -27,7 +27,7 @@ $gridColumns = [
     [
         'attribute' => 'type',
         'value' => function ($model) {
-            return Field::getTypes()[$model->id];
+            return Field::getTypes()[$model->type];
         },
         'filter' => Field::getTypes(),
     ],
