@@ -40,7 +40,7 @@ php composer.phar require --prefer-dist lowbase/yii2-document "*"
        'admin/template/<action:(index|create|update|delete|view|multidelete)>' => 'document/template/<action>',
        //Взаимодействия с документами в панели администрирования
        //Правила для документов лучше не менять, т.к. на них завязан js скрипт компонента дерево документов
-       'admin/document/<action:(index|create|update|delete|view|multidelete|multiactive|multiblock|move)>' => 'document/document/<action>',
+       'admin/document/<action:(index|create|update|delete|view|multidelete|multiactive|multiblock|move|change)>' => 'document/document/<action>',
        // Лайк документа
        'like/<id:\d+>' => 'document/document/like'
         //Отображение документов
