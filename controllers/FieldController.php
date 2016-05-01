@@ -42,6 +42,8 @@ class FieldController extends Controller
     {
         $model = new Field();
         $model->template_id = Yii::$app->request->get('template_id');
+        $model->min = 0;
+        $model->max = 1;
         $template = Template::findOne($model->template_id);
         if ($template == null) {
             throw new NotFoundHttpException(Yii::t('document', 'Запрашиваемая страница не найдена'));
