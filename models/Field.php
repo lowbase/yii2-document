@@ -25,11 +25,6 @@ use Yii;
  */
 class Field extends \yii\db\ActiveRecord
 {
-    const NUMERIC_TABLE = 1;    // Таблица числовых значений
-    const STRING_TABLE = 2;     // Таблица строковых значений
-    const TEXT_TABLE = 3;       // Таблица текстовых значений
-    const DATE_TABLE = 4;       // Таблица с датами
-
     /**
      * Наименование таблицы
      * @return string
@@ -45,34 +40,7 @@ class Field extends \yii\db\ActiveRecord
      */
     public static function getTypes()
     {
-        return [
-            1 => 'Целое число',
-            2 => 'Число',
-            3 => 'Флажок',
-            4 => 'Строка',
-            5 => 'Текст',
-            6 => 'Список (дочерние документы)',
-            7 => 'Список (документы-потомки)',
-            8 => 'Файл (выбор с сервера)',
-            9 => 'Регулярное выражение',
-            10 => 'Дата'
-        ];
-    }
-
-    /**
-     * Массив, показывающий какие типы данных
-     * дополнительных полей в какой из 4 таблиц
-     * хранится
-     * @return array
-     */
-    public static function getTypesOfTable()
-    {
-        return [
-            self::NUMERIC_TABLE => [1,2,3,6,7],
-            self::STRING_TABLE => [4,8,9],
-            self::TEXT_TABLE => [5],
-            self::DATE_TABLE => [4],
-        ];
+        return ValueNumeric::getTypes() + ValueString::getTypes() + ValueText::getTypes() + ValueDate::getTypes();
     }
 
     /**
@@ -87,8 +55,10 @@ class Field extends \yii\db\ActiveRecord
             [['name', 'param'], 'string', 'max' => 255],    // Текстовая строка (максимум 255 символов)
             [['template_id'], 'exist', 'skipOnError' => true, 'targetClass' => Template::className(), 'targetAttribute' => ['template_id' => 'id']],
             [['name', 'param'], 'filter', 'filter' => 'trim'],    // Обрезаем строки по краям
+            [['max'], 'maxValidate'],
             [['param'], 'default', 'value' => null],   // По умолчанию = null
-            [['min', 'max'], 'default', 'value' => 0],   // По умолчанию = 1
+            [['min'], 'default', 'value' => 0],   // По умолчанию = 0
+            [['max'], 'default', 'value' => 1],   // По умолчанию = 1
         ];
     }
 
@@ -116,5 +86,21 @@ class Field extends \yii\db\ActiveRecord
     public function getTemplate()
     {
         return $this->hasOne(Template::className(), ['id' => 'template_id']);
+    }
+
+    /*
+     * Валидация количества максимальных значений
+     * Должно быть больше 0 (иначе нет смысла в данном поле)
+     * Должно быть больше количества минимальных значений
+     * иначе всегда будет ошибка валидации
+     */
+    public function maxValidate()
+    {
+        if ($this->max < 1) {
+            $this->addError('max', Yii::t('document', 'Значений должно быть больше 0'));
+        }
+        if ($this->max < $this->min) {
+            $this->addError('max', Yii::t('document', 'Значений должно быть больше чем минимальное количество'));
+        }
     }
 }
