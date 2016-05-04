@@ -89,14 +89,14 @@ if (in_array($attr_pos, array_keys($model->errors))) {
                     case 8:     // Файл (выбор с сервера)
                         echo InputFile::widget([
                             'controller' => 'elfinder',
-                            'filter' => 'image',
+//                            'filter' => 'image',
                             'template' => '<div class="input-group">{input}<span class="input-group-btn">{button}</span></div>',
                             'options' => ['class' => 'form-control', 'id' => $attr_id],
                             'buttonOptions' => ['class' => 'btn btn-default'],
                             'buttonName' => 'Выбрать файл',
                             'multiple' => false,       // возможность выбора нескольких файлов
-                            'name' => 'Document',
-                            'value' => $model->$attr_value,
+                            'name' => 'Document[fields][' . $field_id . '][data][' . $data_id . '][value]',
+                            'value' => $model->fields[$field_id]['data'][$data_id]['value'],
                         ]);
                         break;
                     case 7:    // Дата
