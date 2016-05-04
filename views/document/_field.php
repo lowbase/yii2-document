@@ -22,13 +22,16 @@ $attr_error = null;             // Ошибки аттрибута
 $attr_pos_error = null;             // Ошибки позиции аттрибута
 // Пометка обязательных аттрибутов
 if ($field['min']) {    // Поле обязательно для заполнения
-    if ($field['max'] > 1) {    // Поле с несколькими значениями
+    if ($field['min'] > 1) {    // Поле с несколькими значениями
         $attr_class .= " multiple-required";
-        $attr_name .= " <span class='lb-document-module-require'>обязательно хотя бы " . $field['min'] . "</span>";
+        $attr_name .= " <span class='lb-document-module-require'>минимум: " . $field['min'] . "</span>";
     } else {    // Поле с одним значением
         $attr_class .= " required";
         $attr_name .= " <span class='lb-document-module-require'>обязательно</span>";
     }
+}
+if ($field['max'] > 1) {
+    $attr_name .= " <span class='lb-document-module-require'>максимум: " . $field['max'] . "</span>";
 }
 // Пометка ошибочных аттрибутов
 if (in_array($attr_value, array_keys($model->errors))) {
