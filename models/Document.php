@@ -576,14 +576,15 @@ class Document extends \yii\db\ActiveRecord
                         }
                         $item[$field_count]->value = $value;
                         $item[$field_count]->position = isset($data['position']) ? $data['position'] : null;
-                        if ($item[$field_count]->value != '') {
-                            // Сохраняем если значение не пустое
-                            $item[$field_count]->save();
-                        } else {
+                        // Не сохраняем если значение пустое или равно 0 когда тип Флажок
+                        if ($item[$field_count]->value == '' || ($item[$field_count]->value == 0 && $item[$field_count]->type == 3)) {
                             // Удаляем если значение пустое, но оно есть в базе данных
                             if (!$item[$field_count]->isNewrecord) {
                                 $item[$field_count]->delete();
                             }
+                        } else {
+                            // Сохраняем если значение не пустое
+                            $item[$field_count]->save();
                         }
                         $field_count++;
                     }
