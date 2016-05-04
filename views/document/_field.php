@@ -96,7 +96,7 @@ if (in_array($attr_pos, array_keys($model->errors))) {
                             'buttonName' => 'Выбрать файл',
                             'multiple' => false,       // возможность выбора нескольких файлов
                             'name' => 'Document[fields][' . $field_id . '][data][' . $data_id . '][value]',
-                            'value' => $model->fields[$field_id]['data'][$data_id]['value'],
+                            'value' => isset($model->fields[$field_id]['data'][$data_id]['value']) ? $model->fields[$field_id]['data'][$data_id]['value'] : null,
                         ]);
                         break;
                     case 7:    // Дата
