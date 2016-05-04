@@ -516,6 +516,7 @@ class Document extends \yii\db\ActiveRecord
         $count_fields_value = []; // Количество заполненныех значений в каждом поле
         // Определяем кол-во заполненных значений, заполняя массив
         foreach($this->fields as $field_id => $field) {
+            $count_fields_value[$field_id] = 0;
             foreach($field['data'] as $data) {
                 if (isset($data['value']) && $data['value'] != '') {
                     if (isset($count_fields_value[$field_id])) {
@@ -523,8 +524,6 @@ class Document extends \yii\db\ActiveRecord
                     } else {
                         $count_fields_value[$field_id] = 1;
                     }
-                } else {
-                    $count_fields_value[$field_id] = 0;
                 }
             }
         }
