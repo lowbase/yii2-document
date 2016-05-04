@@ -6,7 +6,7 @@
  * @version   1.0.0
  */
 
-namespace app\controllers;
+namespace lowbase\document\controllers;
 
 //use yii\filters\AccessControl;
 
