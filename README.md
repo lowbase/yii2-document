@@ -41,6 +41,8 @@ php composer.phar require --prefer-dist lowbase/yii2-document "*"
        //Взаимодействия с документами в панели администрирования
        //Правила для документов лучше не менять, т.к. на них завязан js скрипт компонента дерево документов
        'admin/document/<action:(index|create|update|delete|view|multidelete|multiactive|multiblock|move|change|field)>' => 'document/document/<action>',
+        //Взаимодействия с файловым менеджеромч
+       'elfinder/<action(connect|manager)>' => 'document/path/<action>',
        // Лайк документа
        'like/<id:\d+>' => 'document/document/like'
         //Отображение документов
