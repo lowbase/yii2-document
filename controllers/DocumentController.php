@@ -36,7 +36,7 @@ class DocumentController extends Controller
     public function behaviors()
     {
         return [
-// Ограничение доступа к операциям, связанным с шаблонами
+// Ограничение доступа к операциям, связанным с документами
 // Активировать при подключении пользователей и разделений прав
 //            'access' => [
 //                'class' => AccessControl::className(),
