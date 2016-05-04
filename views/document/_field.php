@@ -93,7 +93,7 @@ if (in_array($attr_pos, array_keys($model->errors))) {
                             'template' => '<div class="input-group">{input}<span class="input-group-btn">{button}</span></div>',
                             'options' => ['class' => 'form-control', 'id' => $attr_id],
                             'buttonOptions' => ['class' => 'btn btn-default'],
-                            'buttonName' => 'Выбрать файл',
+                            'buttonName' => Yii::t('document', 'Выбрать файл'),
                             'multiple' => false,       // возможность выбора нескольких файлов
                             'name' => 'Document[fields][' . $field_id . '][data][' . $data_id . '][value]',
                             'value' => isset($model->fields[$field_id]['data'][$data_id]['value']) ? $model->fields[$field_id]['data'][$data_id]['value'] : null,
