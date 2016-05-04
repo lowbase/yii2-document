@@ -8,6 +8,7 @@
  
 namespace lowbase\document\controllers;
 
+use lowbase\document\models\Field;
 use lowbase\document\models\Like;
 use lowbase\document\models\Visit;
 use Yii;
@@ -39,7 +40,7 @@ class DocumentController extends Controller
 // Активировать при подключении пользователей и разделений прав
 //            'access' => [
 //                'class' => AccessControl::className(),
-//                'only' => ['index', 'view', 'create', 'update', 'delete', 'multidelete', 'multiactive', 'multiblock', 'move', 'show', 'like', 'change'],
+//                'only' => ['index', 'view', 'create', 'update', 'delete', 'multidelete', 'multiactive', 'multiblock', 'move', 'show', 'like', 'change', 'field'],
 //                'rules' => [
 //                ],
 //            ],
@@ -323,6 +324,33 @@ class DocumentController extends Controller
 
         return $this->renderAjax('_fields', [
             'model' => $model,
+        ]);
+    }
+
+    /**
+     * Добавление значения мультиполя
+     */
+    public function actionField()
+    {
+        $document_id = Yii::$app->request->post('document_id');
+        $model = ($document_id) ? Document::findOne($document_id) : new Document();
+        $field_id = Yii::$app->request->post('field_id');
+        $field = Field::findOne($field_id);
+        if (!$field) {
+            return false;
+        }
+        $data_id = Yii::$app->request->post('data_id');
+        $data_id = 'new_multi_' . $data_id; // 0 перед id нового поля свидетельствует о добавлении мультизначения
+        $data = [
+            'value' => '',
+            'position' => ''
+        ];
+        return $this->renderAjax('_field', [
+            'model' => $model,
+            'field' => $field,
+            'field_id' => $field_id,
+            'data' => $data,
+            'data_id' => $data_id,
         ]);
     }
 }
