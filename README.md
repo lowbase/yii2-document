@@ -44,29 +44,12 @@ php composer.phar require --prefer-dist lowbase/yii2-document "*"
         //Взаимодействия с файловым менеджеромч
        'elfinder/<action(connect|manager)>' => 'document/path/<action>',
        // Лайк документа
-       'like/<id:\d+>' => 'document/document/like'
+       'like/<id:\d+>' => 'document/document/like',
         //Отображение документов
-       '<alias>' => 'document/document/show'
+       '<alias>' => 'document/document/show',
        //Взаимодействия с дополнительными полями шаблонов
        'admin/field/<action:(create|update|delete|multidelete)>' => 'document/field/<action>',
    ],
-],
-
-//-----------------------------
-// Активируем файловый менеджер
-//-----------------------------
-
-'controllerMap' => [
-    'elfinder' => [
-        'class' => 'mihaildev\elfinder\PathController',
-        'access' => ['@'],
-        'root' => [
-            'baseUrl'=>'',
-            'basePath'=>'@app/web',
-            'path' => '/attach/document',
-            'name' =>'Файлы'
-        ],
-    ]
 ],
 
 //-----------------------
