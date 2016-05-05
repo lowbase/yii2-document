@@ -322,7 +322,7 @@ class DocumentController extends Controller
         $model->template_id = Yii::$app->request->post('template_id');
         $model->fillFields();   // Заполняем поля согласно новому шаблону
 
-        return $this->renderAjax('_fields', [
+        return $this->renderAjax('@vendor/lowbase/yii2-document/views/document/_fields', [
             'model' => $model,
         ]);
     }
@@ -345,7 +345,7 @@ class DocumentController extends Controller
             'value' => '',
             'position' => ''
         ];
-        return $this->renderAjax('_field', [
+        return $this->renderAjax('@vendor/lowbase/yii2-document/views/document/_field', [
             'model' => $model,
             'field' => $field,
             'field_id' => $field_id,
