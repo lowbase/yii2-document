@@ -25,12 +25,6 @@ DocumentAsset::register($this);
 
 <div class="document-index">
 
-    <div class="row">
-        <div class="col-lg-12">
-            <?= $this->render('../default/alert');?>
-        </div>
-    </div>
-
     <?= $this->render('_search', ['model' => $searchModel]);?>
     <?= $this->render('_tree', ['model' => $searchModel]);?>
 
