@@ -20,7 +20,6 @@ $this->params['breadcrumbs'][] = Yii::t('document', 'Редактировани�
 
     <div class="row">
         <div class="col-lg-12">
-            <?= $this->render('../default/alert');?>
             <h1><?= Html::encode($this->title) ?></h1>
         </div>
     </div>
