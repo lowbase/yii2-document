@@ -23,7 +23,6 @@ DocumentAsset::register($this);
 
     <div class="row">
         <div class="col-lg-12">
-            <?=$this->render('../default/alert');?>
             <h1><?= Html::encode($this->title) ?></h1>
         </div>
     </div>
