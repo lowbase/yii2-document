@@ -20,13 +20,7 @@ $this->params['breadcrumbs'][] = $this->title;
 $assets = DocumentAsset::register($this);
 ?>
 <div class="template-index">
-
-    <div class="row">
-        <div class="col-lg-12">
-            <?= $this->render('../default/alert');?>
-        </div>
-    </div>
-
+ 
     <?php
     $gridColumns = [
         [
