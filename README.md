@@ -37,18 +37,18 @@ php composer.phar require --prefer-dist lowbase/yii2-document "*"
    'showScriptName' => false,
    'rules' => [
        //Взаимодействия с шаблонами в панели администрирования
-       'admin/template/<action:(index|create|update|delete|view|multidelete)>' => 'document/template/<action>',
+       'admin/template/<action:(index|create|update|delete|view|multidelete)>' => 'lowbase-document/template/<action>',
        //Взаимодействия с документами в панели администрирования
        //Правила для документов лучше не менять, т.к. на них завязан js скрипт компонента дерево документов
-       'admin/document/<action:(index|create|update|delete|view|multidelete|multiactive|multiblock|move|change|field)>' => 'document/document/<action>',
+       'admin/document/<action:(index|create|update|delete|view|multidelete|multiactive|multiblock|move|change|field)>' => 'lowbase-document/document/<action>',
         //Взаимодействия с файловым менеджеромч
-       'elfinder/<action(connect|manager)>' => 'document/path/<action>',
+       'elfinder/<action(connect|manager)>' => 'lowbase-document/path/<action>',
        // Лайк документа
-       'like/<id:\d+>' => 'document/document/like',
+       'like/<id:\d+>' => 'lowbase-document/document/like',
         //Отображение документов
-       '<alias>' => 'document/document/show',
+       '<alias>' => 'lowbase-document/document/show',
        //Взаимодействия с дополнительными полями шаблонов
-       'admin/field/<action:(create|update|delete|multidelete)>' => 'document/field/<action>',
+       'admin/field/<action:(create|update|delete|multidelete)>' => 'lowbase-document/field/<action>',
    ],
 ],
 
@@ -60,11 +60,15 @@ php composer.phar require --prefer-dist lowbase/yii2-document "*"
    'gridview' =>  [
        'class' => '\kartik\grid\Module'
    ],
-   'document' => [
+   'lowbase-document' => [
        'class' => '\lowbase\document\Module',
    ],
 ],
 ```
+Внимание!!!
+-----------
+Рекомендуем не изменять название модуля lowbase-document в конфигурационном файле. А также не изменять роуты на создание, удаление, редактирование, просмотр и перемещение документов. В компоненте JStree (виджет вывода документов в виде дерева) указаны абсолютные пути.
+
 Создание таблиц БД
 ------------------
 Запускаем миграции командой:
